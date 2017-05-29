@@ -1,6 +1,3 @@
-/**
- * Created by francoisxavier on 26/05/2017.
- */
 public class Edge {
     private Node nodeFrom;
     private Node nodeTo;
@@ -8,7 +5,7 @@ public class Edge {
     int line; //Ligne à laquelle appartient cette liaison.
     private String type;
 
-    Edge(Node nodeFrom, Node nodeTo, int line, String type){
+    Edge(Node nodeFrom, Node nodeTo, int line, String type) {
         this.nodeTo = nodeTo;
         this.nodeFrom = nodeFrom;
         this.line = line;

@@ -3,9 +3,6 @@ import com.peertopark.java.geocalc.*;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by francoisxavier on 26/05/2017.
- */
 public class Node {
     private List<Edge> edges = new ArrayList<>();
     private String name;
@@ -15,11 +12,11 @@ public class Node {
     private int predecessor = -1;
     private double lng;
     private double lat;
-    private int distanceFromSource = 100000;
+    private int distanceFromSource = Integer.MAX_VALUE; // TODO Integer.MAX_VALUE
     private boolean marked = false;
 
 
-    Node(int id, String name, List<Integer> lines, double lng, double lat){
+    Node(int id, String name, List<Integer> lines, double lng, double lat) {
         this.id = id;
         this.name = name;
         this.lines = lines;
@@ -91,20 +88,20 @@ public class Node {
         this.lat = lat;
     }
 
-    public void addEdge(Edge e){
+    public void addEdge(Edge e) {
         edges.add(e);
     }
 
-    public void fillNeighbors(){
-        for(int i=0; i<edges.size(); i++){
+    public void fillNeighbors() {
+        for (int i = 0; i < edges.size(); i++) {
             neighbors.add(edges.get(i).getNodeTo());
         }
     }
 
     //Utilise une API pour calculer la distance en metre à partir de deux points dont
     //on connait les coordonnées. Ajoute ensuite cette distance dans le poids du lien.
-    public void fillWeights(){
-        for(int i=0; i<edges.size(); i++){
+    public void fillWeights() {
+        for (int i = 0; i < edges.size(); i++) {
 
             Coordinate latStation1 = new DegreeCoordinate(edges.get(i).getNodeFrom().getLat());
             Coordinate lngStation1 = new DegreeCoordinate(edges.get(i).getNodeFrom().getLng());
@@ -136,20 +133,20 @@ public class Node {
         this.marked = marked;
     }
 
-    public int getWeightForNeigbhor(Node nodeTo){
-        int weight=0;
-        for(int i=0; i<edges.size(); i++){
-            if(edges.get(i).getNodeTo().equals(nodeTo)){
+    public int getWeightForNeigbhor(Node nodeTo) {
+        int weight = 0;
+        for (int i = 0; i < edges.size(); i++) {
+            if (edges.get(i).getNodeTo().equals(nodeTo)) {
                 weight = edges.get(i).getWeight();
             }
         }
         return (weight);
     }
 
-    public int getLineForNeigbhor(Node nodeTo){
-        int line=0;
-        for(int i=0; i<edges.size(); i++){
-            if(edges.get(i).getNodeTo().equals(nodeTo)){
+    public int getLineForNeigbhor(Node nodeTo) {
+        int line = 0;
+        for (int i = 0; i < edges.size(); i++) {
+            if (edges.get(i).getNodeTo().equals(nodeTo)) {
                 line = edges.get(i).getLine();
             }
         }
