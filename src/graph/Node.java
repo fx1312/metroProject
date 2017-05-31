@@ -1,3 +1,5 @@
+package graph;
+
 import com.peertopark.java.geocalc.*;
 
 import java.util.ArrayList;
@@ -92,31 +94,6 @@ public class Node {
         edges.add(e);
     }
 
-    public void fillNeighbors() {
-        for (int i = 0; i < edges.size(); i++) {
-            neighbors.add(edges.get(i).getNodeTo());
-        }
-    }
-
-    //Utilise une API pour calculer la distance en metre à partir de deux points dont
-    //on connait les coordonnées. Ajoute ensuite cette distance dans le poids du lien.
-    public void fillWeights() {
-        for (int i = 0; i < edges.size(); i++) {
-
-            Coordinate latStation1 = new DegreeCoordinate(edges.get(i).getNodeFrom().getLat());
-            Coordinate lngStation1 = new DegreeCoordinate(edges.get(i).getNodeFrom().getLng());
-            Point station1 = new Point(latStation1, lngStation1);
-
-            Coordinate latStation2 = new DegreeCoordinate(edges.get(i).getNodeTo().getLat());
-            Coordinate lngStation2 = new DegreeCoordinate(edges.get(i).getNodeTo().getLng());
-            Point station2 = new Point(latStation2, lngStation2);
-
-            edges.get(i).setWeight((int) EarthCalc.getHarvesineDistance(station1, station2));
-        }
-
-
-    }
-
     public int getDistanceFromSource() {
         return distanceFromSource;
     }
@@ -155,7 +132,7 @@ public class Node {
 
     @Override
     public String toString() {
-        return "Node{" +
+        return "graph.Node{" +
                 "name='" + name + '\'' +
                 ", id=" + id +
                 ", lng=" + lng +

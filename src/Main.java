@@ -2,10 +2,21 @@ import com.peertopark.java.geocalc.Coordinate;
 import com.peertopark.java.geocalc.DegreeCoordinate;
 import com.peertopark.java.geocalc.EarthCalc;
 import com.peertopark.java.geocalc.Point;
+import graph.Graph;
+import graph.JSONGraphFactory;
+
+import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        Graph metro = new Graph("reseaux.json");
+        Graph metro = null;
+        try {
+            metro = JSONGraphFactory.createFromJSONFile("reseaux.json");
+        } catch (IOException e) {
+            System.out.println("Graph creation failed. Nested exception is logged below.");
+            e.printStackTrace();
+        }
+
         Pathfinder pathfinder = new Pathfinder(metro);
 
         metro.printGraph();

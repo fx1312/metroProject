@@ -1,3 +1,5 @@
+package graph;
+
 public class Edge {
     private Node nodeFrom;
     private Node nodeTo;

@@ -1,3 +1,6 @@
+import graph.Graph;
+import graph.Node;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,7 +14,7 @@ public class Pathfinder {
     }
 
     /**
-     * Select the current Node for Dijkstra algorithm
+     * Select the current graph.Node for Dijkstra algorithm
      * @return Id of the node ? // TODO
      */
     public int selectNodeForDijkstra() {
@@ -103,7 +106,6 @@ public class Pathfinder {
     }
 
     public int nameToId(String name) {
-        int id;
         for (Map.Entry<Integer, Node> mapentry : allNodes.entrySet()) {
             if (mapentry.getValue().getName().equals(name)) {
                 return mapentry.getValue().getId();
