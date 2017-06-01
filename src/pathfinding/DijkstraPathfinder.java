@@ -35,39 +35,40 @@ public class DijkstraPathfinder extends PathFinder {
 
     @Override
     public void computeShortestPath(String departure, String arrival) {
-        int sourceId = graph.nameToId(departure);
-
         Node sourceNode = graph.findNodeByName(departure);
         Node targetNode = graph.findNodeByName(arrival);
 
-        // TODO check every weight is positive ?
+        computeShortestPath(sourceNode, targetNode);
+    }
 
+    public void computeShortestPath(Node sourceNode, Node targetNode) {
+        // TODO check every weight is positive ?
         int pathLength = 0;
 
-        runTraversal(sourceId);
+        runTraversal(sourceNode);
 
         pathLength = targetNode.getDistanceFromSource();
 
         if (pathLength == Integer.MAX_VALUE) {
+            System.out.println(sourceNode);
+            System.out.println(targetNode);
             throw new PathFindingException("No path exists between source and target node !");
         }
 
-        System.out.println(pathLength);
-
+        // Build the successive path steps, going backwards
+        // (because each node has a reference towards its predecessor)
         List<Edge> pathSteps = new ArrayList<>();
         Node currentNode = targetNode;
 
-        int predecessorId = targetNode.getPredecessorId();
-        Node predecessor = graph.findNodeById(predecessorId);
+        Node predecessor = targetNode.getPredecessor();
+
         Edge edgeToHere = predecessor.getEdgeToNeighbor(currentNode);
         pathSteps.add(edgeToHere);
 
         currentNode = predecessor;
 
-
         while (! currentNode.equals(sourceNode)) {
-            predecessorId = currentNode.getPredecessorId();
-            predecessor = graph.findNodeById(predecessorId);
+            predecessor = currentNode.getPredecessor();
             edgeToHere = predecessor.getEdgeToNeighbor(currentNode);
             pathSteps.add(edgeToHere);
 
@@ -91,52 +92,46 @@ public class DijkstraPathfinder extends PathFinder {
         return b;
     }
 
-    private void runTraversal(int sourceNodeId) {
-        Map<Integer, Node> nodes = graph.getNodes();
-
+    public void runTraversal(Node sourceNode) {
         resetBeforeTraversal();
 
-        int currentNodeId = sourceNodeId;
-        nodes.get(sourceNodeId).setDistanceFromSource(0);
+        Node currentNode = sourceNode;
+        currentNode.setDistanceFromSource(0);
 
-        while (currentNodeId != -1) {
-            Node currentNode = nodes.get(currentNodeId);
+        while (currentNode != null) {
             for (Node neighbor : currentNode.getNeighbors()) {
                 if (currentNode.getDistanceFromSource() + currentNode.getWeightForNeigbhor(neighbor) < neighbor.getDistanceFromSource()) {
                     neighbor.setDistanceFromSource(currentNode.getDistanceFromSource() + currentNode.getWeightForNeigbhor(neighbor));
-                    neighbor.setPredecessorId(currentNodeId);
+                    neighbor.setPredecessor(currentNode);
                 }
             }
             currentNode.setMarked(true);
 
             // Find the new current node
-            currentNodeId = selectNodeForDijkstra();
+            currentNode = findUnmarkedNodeAtMinimalDistance();
         }
     }
 
-    private int selectNodeForDijkstra() {
+    // TODO a better way to do this could be to keep up-to-date a Map that would map distances of unmarked Nodes to these nodes (then the number of Nodes to iterate on would decrease as the algorithm runs)
+    private Node findUnmarkedNodeAtMinimalDistance() {
         Map<Integer, Node> nodes = graph.getNodes();
+        Node selectedNode = null;
 
-        List<Node> sortedNodes = new ArrayList<>();
-        if (areAllMarked()) {
-            return -1;
-        }
+        for (Map.Entry<Integer, Node> currentEntry : nodes.entrySet()) {
+            Node currentNode = currentEntry.getValue();
 
-        for (int currentNodeIndex : nodes.keySet()) {
-            Node currentNode = nodes.get(currentNodeIndex);
-            if (!currentNode.isMarked()) {
-                if (sortedNodes.size() == 0) {
-                    sortedNodes.add(currentNode);
-                } else {
-                    if (currentNode.getDistanceFromSource() <= sortedNodes.get(0).getDistanceFromSource()) {
-                        sortedNodes.add(0, currentNode);
-                    }
-                    if (currentNode.getDistanceFromSource() > sortedNodes.get(0).getDistanceFromSource()) {
-                        sortedNodes.add(sortedNodes.size() - 1, currentNode);
-                    }
-                }
+            // Keep only unmarked nodes :
+            if (currentNode.isMarked()) continue;
+            if (selectedNode == null) {
+                selectedNode = currentNode;
+                continue;
+            }
+
+            if (currentNode.getDistanceFromSource() < selectedNode.getDistanceFromSource()) {
+                selectedNode = currentNode;
             }
         }
-        return (sortedNodes.get(0).getId());
+
+        return selectedNode;
     }
 }

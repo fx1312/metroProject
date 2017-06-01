@@ -2,22 +2,27 @@ import com.peertopark.java.geocalc.Coordinate;
 import com.peertopark.java.geocalc.DegreeCoordinate;
 import com.peertopark.java.geocalc.EarthCalc;
 import com.peertopark.java.geocalc.Point;
-import graph.Edge;
 import graph.Graph;
 import graph.JSONGraphFactory;
+import graphproperties.DijkstraDiameter;
 import pathfinding.DijkstraPathfinder;
+import pathfinding.PathUtils;
 
 import java.io.IOException;
 
 public class Main {
     public static void main(String[] args) {
-        Graph metro = null;
+        Graph metro;
         try {
             metro = JSONGraphFactory.createFromJSONFile("reseaux.json");
         } catch (IOException e) {
             System.out.println("Graph creation failed. Nested exception is logged below.");
             e.printStackTrace();
+            return;
         }
+
+
+        // Pathfinder using Dijkstra's algorithm :
 
         DijkstraPathfinder dijkstraPathfinder = new DijkstraPathfinder(metro);
 
@@ -25,15 +30,20 @@ public class Main {
         System.out.println();
         System.out.println();
 
-        dijkstraPathfinder.computeShortestPath("Nation", "Bastille");
+        dijkstraPathfinder.computeShortestPath("Nation", "Vavin");
 
-        System.out.format("Longueur du trajet : %s", dijkstraPathfinder.getPathLength());
-        System.out.println(); // TODO system.ls
+        PathUtils.printPath(dijkstraPathfinder.getPath(), dijkstraPathfinder.getPathLength());
 
-        for (Edge edge: dijkstraPathfinder.getPath()) {
-            System.out.format("* Ligne %s entre %s et %s", edge.getLine(), edge.getNodeFrom().getName(), edge.getNodeTo().getName());
-            System.out.println();
-        }
+        dijkstraPathfinder.computeShortestPath("Etienne Marcel", "Hotel de Ville");
+
+        PathUtils.printPath(dijkstraPathfinder.getPath(), dijkstraPathfinder.getPathLength());
+
+        // Diameter and longest path of the metro :
+
+        DijkstraDiameter dijkstraDiameter = new DijkstraDiameter(metro);
+        dijkstraDiameter.computeGraphProperties();
+
+        PathUtils.printPath(dijkstraDiameter.getLongestShortestPath(), dijkstraDiameter.getLongestShortestPathLength());
     }
 
     public static void testGeocalcDistance() {

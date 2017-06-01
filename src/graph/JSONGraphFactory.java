@@ -37,11 +37,15 @@ public class JSONGraphFactory {
         // Cré un tableau JSON qui contient les données de correspondances
         JSONArray correspondances = json.getJSONArray("corresp");
 
+        JSONArray routes = json.getJSONArray("routes");
+
         Graph graph = new Graph();
 
         addStationsToGraph(graph, stations);
 
-        addLinesToStations(graph, lignes);
+//        addLinesToStations(graph, lignes);
+
+        addEdgesBetweenStations(graph, routes);
 
         addConnectionsToStations(graph, correspondances);
 
@@ -65,8 +69,8 @@ public class JSONGraphFactory {
                 int node2Index = Integer.parseInt(correspTemp.getString(1));
 
                 // TODO addUndirectedEdge and addDirectedEdge :
-                addEdgeBetweenNodes(graph, node1Index, node2Index, -1, "correspondance");
-                addEdgeBetweenNodes(graph, node2Index, node1Index, -1, "correspondance");
+                addEdgeBetweenNodes(graph, node1Index, node2Index, "connection", EdgeType.CONNECTION);
+                addEdgeBetweenNodes(graph, node2Index, node1Index, "connection", EdgeType.CONNECTION);
             }
 
             // Si la correspondance est constitué de trois arrets de type metro
@@ -81,8 +85,8 @@ public class JSONGraphFactory {
                                 new Edge(
                                         nodes.get(Integer.parseInt(correspTemp.getString(0))),
                                         nodes.get(Integer.parseInt(correspTemp.getString(1))),
-                                        -1,
-                                        "correspondance"
+                                        "connection",
+                                        EdgeType.CONNECTION
                                 ));
 
                 nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
@@ -90,8 +94,8 @@ public class JSONGraphFactory {
                                 new Edge(
                                         nodes.get(Integer.parseInt(correspTemp.getString(1))),
                                         nodes.get(Integer.parseInt(correspTemp.getString(0))),
-                                        -1,
-                                        "correspondance"
+                                        "connection",
+                                        EdgeType.CONNECTION
                                 ));
 
                 nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
@@ -99,8 +103,8 @@ public class JSONGraphFactory {
                                 new Edge(
                                         nodes.get(Integer.parseInt(correspTemp.getString(0))),
                                         nodes.get(Integer.parseInt(correspTemp.getString(2))),
-                                        -1,
-                                        "correspondance"
+                                        "connection",
+                                        EdgeType.CONNECTION
                                 ));
 
                 nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
@@ -108,8 +112,8 @@ public class JSONGraphFactory {
                                 new Edge(
                                         nodes.get(Integer.parseInt(correspTemp.getString(2))),
                                         nodes.get(Integer.parseInt(correspTemp.getString(0))),
-                                        -1,
-                                        "correspondance"
+                                        "connection",
+                                        EdgeType.CONNECTION
                                 ));
 
                 nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
@@ -117,8 +121,8 @@ public class JSONGraphFactory {
                                 new Edge(
                                         nodes.get(Integer.parseInt(correspTemp.getString(2))),
                                         nodes.get(Integer.parseInt(correspTemp.getString(3))),
-                                        -1,
-                                        "correspondance"
+                                        "connection",
+                                        EdgeType.CONNECTION
                                 ));
 
                 nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
@@ -126,10 +130,45 @@ public class JSONGraphFactory {
                                 new Edge(
                                         nodes.get(Integer.parseInt(correspTemp.getString(3))),
                                         nodes.get(Integer.parseInt(correspTemp.getString(2))),
-                                        -1,
-                                        "correspondance"
+                                        "connection",
+                                        EdgeType.CONNECTION
                                 ));
             }
+        }
+    }
+
+    private static void addEdgesBetweenStations(Graph graph, JSONArray routes) {
+        for (int i = 0; i < routes.length(); i++) {
+            // Cré une liste contenant la correspondance (deux ou trois arrêts)
+            JSONObject route = routes.getJSONObject(i);
+
+            String routeType = route.getString("type");
+
+            if (routeType.equals("metro")) {
+                JSONArray stops = route.getJSONArray("arrets");
+                String lineName = route.getString("ligne");
+
+                // Iterate over the stops [0, n - 1] to add edges between them
+                // We add a single, directed edge because "routes" in the JSON contains routes for each
+                // destination of the metro lines :
+                for (int j = 0; j < stops.length() - 1; j++) {
+                    int nodeFromIndex = Integer.parseInt(stops.getString(j));
+                    int nodeToIndex = Integer.parseInt(stops.getString(j + 1));
+
+                    addEdgeBetweenNodes(graph, nodeFromIndex, nodeToIndex, lineName, EdgeType.METRO_LINE);
+                }
+            }
+
+//            if (routeType.equals("corresp")) {
+//                JSONArray stops = route.getJSONArray("arrets");
+//                String lineName = "connection";
+//                for (int j = 0; j < stops.length(); j++) {
+//                    int nodeFromIndex = Integer.parseInt(stops.getString(j));
+//                    int nodeToIndex = Integer.parseInt(stops.getString(j + 1));
+//
+//                    addEdgeBetweenNodes(graph, nodeFromIndex, nodeToIndex, lineName, EdgeType.METRO_LINE);
+//                }
+//            }
         }
     }
 
@@ -138,25 +177,13 @@ public class JSONGraphFactory {
 
         while (iteratorLignes.hasNext()) {
 
-            String numeroLigneString = iteratorLignes.next().toString();
+            String lineName = iteratorLignes.next().toString();
 
             // Cré un objet JSON contenant les données de la ligne.
-            JSONObject ligne = lignes.getJSONObject(numeroLigneString);
+            JSONObject ligne = lignes.getJSONObject(lineName);
 
             // Ne cré les connexions que pour les lignes de metro.
             if (ligne.has("arrets") && ligne.get("type").equals("metro")) {
-
-                int numeroLigneInt;
-
-                if (numeroLigneString.equals("3B") || numeroLigneString.equals("7B")) {
-                    if (numeroLigneString.equals("3B")) {
-                        numeroLigneInt = 3;
-                    } else {
-                        numeroLigneInt = 7;
-                    }
-                } else {
-                    numeroLigneInt = Integer.parseInt(numeroLigneString);
-                }
 
                 // Cré  un tableau contenant les arrets de la ligne.
                 JSONArray arretsTab = ligne.getJSONArray("arrets");
@@ -167,14 +194,14 @@ public class JSONGraphFactory {
                     JSONArray arrets = arretsTab.getJSONArray(j);
 
                     // Pour toute le lignes sauf la 10 (cas spécial)
-                    if (numeroLigneInt != 10) {
+                    if (!lineName.equals("10")) {
                         for (int i = 0; i < arrets.length() - 1; i++) {
 
                             int node1index = Integer.parseInt(arrets.getString(i));
                             int node2index = Integer.parseInt(arrets.getString(i + 1));
 
-                            addEdgeBetweenNodes(graph, node1index, node2index, numeroLigneInt, "metro");
-                            addEdgeBetweenNodes(graph, node2index, node1index, numeroLigneInt, "metro");
+                            addEdgeBetweenNodes(graph, node1index, node2index, lineName, EdgeType.METRO_LINE);
+                            addEdgeBetweenNodes(graph, node2index, node1index, lineName, EdgeType.METRO_LINE);
                         }
                     } else {
                         // Cas de la ligne 10
@@ -185,7 +212,7 @@ public class JSONGraphFactory {
                                 int node1index = Integer.parseInt(arrets.getString(i));
                                 int node2index = Integer.parseInt(arrets.getString(i + 1));
 
-                                addEdgeBetweenNodes(graph, node1index, node2index, numeroLigneInt, "metro");
+                                addEdgeBetweenNodes(graph, node1index, node2index, lineName, EdgeType.METRO_LINE);
                             }
 
                             for (int i = arrets.length() - 1; i > 5; i--) {
@@ -193,7 +220,7 @@ public class JSONGraphFactory {
                                 int node1index = Integer.parseInt(arrets.getString(i));
                                 int node2index = Integer.parseInt(arrets.getString(i - 1));
 
-                                addEdgeBetweenNodes(graph, node1index, node2index, numeroLigneInt, "metro");
+                                addEdgeBetweenNodes(graph, node1index, node2index, lineName, EdgeType.METRO_LINE);
                             }
                         }
                         if (j == 1) {
@@ -202,7 +229,7 @@ public class JSONGraphFactory {
                                 int node1index = Integer.parseInt(arrets.getString(i));
                                 int node2index = Integer.parseInt(arrets.getString(i - 1));
 
-                                addEdgeBetweenNodes(graph, node1index, node2index, numeroLigneInt, "metro");
+                                addEdgeBetweenNodes(graph, node1index, node2index, lineName, EdgeType.METRO_LINE);
                             }
                         }
                     }
@@ -286,7 +313,7 @@ public class JSONGraphFactory {
         });
     }
 
-    private static void addEdgeBetweenNodes(Graph graph, int node1Index, int node2Index, int line, String type) {
+    private static void addEdgeBetweenNodes(Graph graph, int node1Index, int node2Index, String line, EdgeType type) {
         // TODO use graph.findNodeById, deprecate graph.getNodes ?
 
         Map<Integer, Node> nodes = graph.getNodes();

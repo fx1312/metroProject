@@ -12,8 +12,9 @@ public class Node {
     private double lng;
     private double lat;
 
-    private int predecessorId = -1;
+    private Node predecessor;
     private int distanceFromSource = Integer.MAX_VALUE; // TODO Integer.MAX_VALUE
+    private int eccentricity = -1;
     private boolean marked = false;
 
     Node(int id, String name, List<Integer> lines, double lng, double lat) {
@@ -64,14 +65,6 @@ public class Node {
 
     public void setNeighbors(List<Node> neighbors) {
         this.neighbors = neighbors;
-    }
-
-    public int getPredecessorId() {
-        return predecessorId;
-    }
-
-    public void setPredecessorId(int predecessorId) {
-        this.predecessorId = predecessorId;
     }
 
     public double getLng() {
@@ -136,16 +129,6 @@ public class Node {
         return null;
     }
 
-    public int getLineForNeigbhor(Node nodeTo) {
-        int line = 0;
-        for (int i = 0; i < edges.size(); i++) {
-            if (edges.get(i).getNodeTo().equals(nodeTo)) {
-                line = edges.get(i).getLine();
-            }
-        }
-        return line;
-    }
-
     @Override
     public String toString() {
         return "graph.Node{" +
@@ -154,5 +137,21 @@ public class Node {
                 ", lng=" + lng +
                 ", lat=" + lat +
                 '}';
+    }
+
+    public int getEccentricity() {
+        return eccentricity;
+    }
+
+    public void setEccentricity(int eccentricity) {
+        this.eccentricity = eccentricity;
+    }
+
+    public Node getPredecessor() {
+        return predecessor;
+    }
+
+    public void setPredecessor(Node predecessor) {
+        this.predecessor = predecessor;
     }
 }

@@ -38,4 +38,9 @@ Chaque graph.Node de cette Map possède une liste de graph.Edge, qui est remplis
 
 Tu fais une recherche et tu tombes sur un truc intéressant ? Balance-le ici !
 
+* https://upload.wikimedia.org/wikipedia/commons/8/8e/Paris_Metro_map_complete.svg
+
+## Flaws
+
+* On part du principe que les segments de lignes entre les stations sont toujours des droites (or ce n'est pas forcément le cas)
 

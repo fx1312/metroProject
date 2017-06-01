@@ -22,7 +22,7 @@ public abstract class PathFinder {
         nodes.forEach((id, node) -> {
             node.setMarked(false);
             node.setDistanceFromSource(Integer.MAX_VALUE);
-            node.setPredecessorId(-1);
+            node.setPredecessor(null);
         });
     }
 }

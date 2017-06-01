@@ -4,10 +4,10 @@ public class Edge {
     private Node nodeFrom;
     private Node nodeTo;
     int weight = -1; //Longueur en temps, calculer à l'aide de la lat et la lng.
-    int line; //Ligne à laquelle appartient cette liaison.
-    private String type;
+    String line; //Ligne à laquelle appartient cette liaison.
+    private EdgeType type;
 
-    Edge(Node nodeFrom, Node nodeTo, int line, String type) {
+    Edge(Node nodeFrom, Node nodeTo, String line, EdgeType type) {
         this.nodeTo = nodeTo;
         this.nodeFrom = nodeFrom;
         this.line = line;
@@ -39,19 +39,19 @@ public class Edge {
         this.weight = weight;
     }
 
-    public int getLine() {
+    public String getLine() {
         return line;
     }
 
-    public void setLine(int line) {
+    public void setLine(String line) {
         this.line = line;
     }
 
-    public String getType() {
+    public EdgeType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(EdgeType type) {
         this.type = type;
     }
 }
