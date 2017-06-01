@@ -34,4 +34,26 @@ public class Graph {
             }
         }
     }
+
+    public Node findNodeByName(String name) {
+        for (Map.Entry<Integer, Node> mapentry : nodes.entrySet()) {
+            if (mapentry.getValue().getName().equals(name)) {
+                return mapentry.getValue();
+            }
+        }
+        return null;
+    }
+
+    public int nameToId(String name) {
+        for (Map.Entry<Integer, Node> mapentry : nodes.entrySet()) {
+            if (mapentry.getValue().getName().equals(name)) {
+                return mapentry.getValue().getId();
+            }
+        }
+        return -1;
+    }
+
+    public Node findNodeById(int id) {
+        return nodes.get(id);
+    }
 }

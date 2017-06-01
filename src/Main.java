@@ -2,8 +2,10 @@ import com.peertopark.java.geocalc.Coordinate;
 import com.peertopark.java.geocalc.DegreeCoordinate;
 import com.peertopark.java.geocalc.EarthCalc;
 import com.peertopark.java.geocalc.Point;
+import graph.Edge;
 import graph.Graph;
 import graph.JSONGraphFactory;
+import pathfinding.DijkstraPathfinder;
 
 import java.io.IOException;
 
@@ -17,13 +19,21 @@ public class Main {
             e.printStackTrace();
         }
 
-        Pathfinder pathfinder = new Pathfinder(metro);
+        DijkstraPathfinder dijkstraPathfinder = new DijkstraPathfinder(metro);
 
         metro.printGraph();
         System.out.println();
         System.out.println();
 
-        pathfinder.dijkstra("Nation", "Vavin");
+        dijkstraPathfinder.computeShortestPath("Nation", "Bastille");
+
+        System.out.format("Longueur du trajet : %s", dijkstraPathfinder.getPathLength());
+        System.out.println(); // TODO system.ls
+
+        for (Edge edge: dijkstraPathfinder.getPath()) {
+            System.out.format("* Ligne %s entre %s et %s", edge.getLine(), edge.getNodeFrom().getName(), edge.getNodeTo().getName());
+            System.out.println();
+        }
     }
 
     public static void testGeocalcDistance() {

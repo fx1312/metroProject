@@ -67,29 +67,15 @@ public class JSONGraphFactory {
                 // TODO addUndirectedEdge and addDirectedEdge :
                 addEdgeBetweenNodes(graph, node1Index, node2Index, -1, "correspondance");
                 addEdgeBetweenNodes(graph, node2Index, node1Index, -1, "correspondance");
-
-//                nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
-//                        .addEdge(
-//                                new Edge(
-//                                        nodes.get(Integer.parseInt(correspTemp.getString(0))),
-//                                        nodes.get(Integer.parseInt(correspTemp.getString(1))),
-//                                        -1,
-//                                        "correspondance"
-//                                ));
-
-//                nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
-//                        .addEdge(
-//                                new Edge(
-//                                        nodes.get(Integer.parseInt(correspTemp.getString(1))),
-//                                        nodes.get(Integer.parseInt(correspTemp.getString(0))),
-//                                        -1,
-//                                        "correspondance"
-//                                ));
             }
 
             // Si la correspondance est constitué de trois arrets de type metro
             if (correspTemp.length() == 3 && !correspTemp.getString(0).contains("_") && !correspTemp.getString(1).contains("_") && !correspTemp.getString(2).contains("_") && nodes.containsKey(Integer.parseInt(correspTemp.getString(0))) && nodes.containsKey(Integer.parseInt(correspTemp.getString(1))) && nodes.containsKey(Integer.parseInt(correspTemp.getString(2)))) {
+
+
                 System.out.println("swaggity swag"); // never printed out ==> condition above seems to be always false
+
+
                 nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
                         .addEdge(
                                 new Edge(
@@ -189,32 +175,10 @@ public class JSONGraphFactory {
 
                             addEdgeBetweenNodes(graph, node1index, node2index, numeroLigneInt, "metro");
                             addEdgeBetweenNodes(graph, node2index, node1index, numeroLigneInt, "metro");
-
-//                            // Ajoute une lien entre chaque station dans les deux sens.
-//                            nodes
-//                                    .get(Integer.parseInt(arrets.getString(i)))
-//                                    .addEdge(
-//                                            new Edge(
-//                                                    nodes.get(Integer.parseInt(arrets.getString(i))),
-//                                                    nodes.get(Integer.parseInt(arrets.getString(i + 1))),
-//                                                    numeroLigneInt,
-//                                                    "metro"
-//                                            )
-//                                    );
-//
-//                            nodes
-//                                    .get(Integer.parseInt(arrets.getString(i + 1)))
-//                                    .addEdge(
-//                                            new Edge(
-//                                                    nodes.get(Integer.parseInt(arrets.getString(i + 1))),
-//                                                    nodes.get(Integer.parseInt(arrets.getString(i))),
-//                                                    numeroLigneInt,
-//                                                    "metro"
-//                                            )
-//                                    );
                         }
                     } else {
                         // Cas de la ligne 10
+                        // TODO this is completely broken (try pathfinder.dijkstra("Boulogne-Jean-Jaures", "Javel-Andre-Citroen");)
                         if (j == 0) {
                             for (int i = 0; i < arrets.length() - 1; i++) {
 
@@ -222,17 +186,6 @@ public class JSONGraphFactory {
                                 int node2index = Integer.parseInt(arrets.getString(i + 1));
 
                                 addEdgeBetweenNodes(graph, node1index, node2index, numeroLigneInt, "metro");
-
-//                                nodes
-//                                        .get(Integer.parseInt(arrets.getString(i)))
-//                                        .addEdge(
-//                                                new Edge(
-//                                                        nodes.get(Integer.parseInt(arrets.getString(i))),
-//                                                        nodes.get(Integer.parseInt(arrets.getString(i + 1))),
-//                                                        numeroLigneInt,
-//                                                        "metro"
-//                                                )
-//                                        );
                             }
 
                             for (int i = arrets.length() - 1; i > 5; i--) {
@@ -241,18 +194,6 @@ public class JSONGraphFactory {
                                 int node2index = Integer.parseInt(arrets.getString(i - 1));
 
                                 addEdgeBetweenNodes(graph, node1index, node2index, numeroLigneInt, "metro");
-
-                                // Ajoute une lien entre chaque station dans les deux sens.
-//                                nodes
-//                                        .get(Integer.parseInt(arrets.getString(i)))
-//                                        .addEdge(
-//                                                new Edge(
-//                                                        nodes.get(Integer.parseInt(arrets.getString(i))),
-//                                                        nodes.get(Integer.parseInt(arrets.getString(i - 1))),
-//                                                        numeroLigneInt,
-//                                                        "metro"
-//                                                )
-//                                        );
                             }
                         }
                         if (j == 1) {
@@ -262,18 +203,6 @@ public class JSONGraphFactory {
                                 int node2index = Integer.parseInt(arrets.getString(i - 1));
 
                                 addEdgeBetweenNodes(graph, node1index, node2index, numeroLigneInt, "metro");
-
-                                // Ajoute une lien entre chaque station dans les deux sens.
-//                                nodes
-//                                        .get(Integer.parseInt(arrets.getString(i)))
-//                                        .addEdge(
-//                                                new Edge(
-//                                                        nodes.get(Integer.parseInt(arrets.getString(i))),
-//                                                        nodes.get(Integer.parseInt(arrets.getString(i - 1))),
-//                                                        numeroLigneInt,
-//                                                        "metro"
-//                                                )
-//                                        );
                             }
                         }
                     }
@@ -350,13 +279,16 @@ public class JSONGraphFactory {
             Coordinate lngStation2 = new DegreeCoordinate(edge.getNodeTo().getLng());
             Point station2 = new Point(latStation2, lngStation2);
 
-            edge.setWeight((int) EarthCalc.getHarvesineDistance(station1, station2));
+            // distance in meters :
+            Double distance = EarthCalc.getHarvesineDistance(station1, station2);
+            Long dL = Math.round(distance);
+            edge.setWeight(dL.intValue());
         });
-
-
     }
 
     private static void addEdgeBetweenNodes(Graph graph, int node1Index, int node2Index, int line, String type) {
+        // TODO use graph.findNodeById, deprecate graph.getNodes ?
+
         Map<Integer, Node> nodes = graph.getNodes();
 
         Node node1 = nodes.get(node1Index);

@@ -1,22 +1,20 @@
 package graph;
 
-import com.peertopark.java.geocalc.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
 public class Node {
-    private List<Edge> edges = new ArrayList<>();
-    private String name;
     private int id;
+    private String name;
+    private List<Edge> edges = new ArrayList<>();
     private List<Integer> lines = new ArrayList<>();
     private List<Node> neighbors = new ArrayList<>();
-    private int predecessor = -1;
     private double lng;
     private double lat;
+
+    private int predecessorId = -1;
     private int distanceFromSource = Integer.MAX_VALUE; // TODO Integer.MAX_VALUE
     private boolean marked = false;
-
 
     Node(int id, String name, List<Integer> lines, double lng, double lat) {
         this.id = id;
@@ -42,10 +40,12 @@ public class Node {
         this.name = name;
     }
 
+    @Deprecated
     public int getId() {
         return id;
     }
 
+    @Deprecated
     public void setId(int id) {
         this.id = id;
     }
@@ -66,12 +66,12 @@ public class Node {
         this.neighbors = neighbors;
     }
 
-    public int getPredecessor() {
-        return predecessor;
+    public int getPredecessorId() {
+        return predecessorId;
     }
 
-    public void setPredecessor(int predecessor) {
-        this.predecessor = predecessor;
+    public void setPredecessorId(int predecessorId) {
+        this.predecessorId = predecessorId;
     }
 
     public double getLng() {
@@ -120,6 +120,22 @@ public class Node {
         return (weight);
     }
 
+    /**
+     * Get the edge that points towards the node passed as argument
+     *
+     * TODO what if several edges point to the same neighbor ?
+     * @param neighbor the node where we want to go
+     * @return Edge pointing to the Node passed
+     */
+    public Edge getEdgeToNeighbor(Node neighbor) {
+        for (Edge edge: edges) {
+            if (edge.getNodeTo().equals(neighbor)) {
+                return edge;
+            }
+        }
+        return null;
+    }
+
     public int getLineForNeigbhor(Node nodeTo) {
         int line = 0;
         for (int i = 0; i < edges.size(); i++) {
@@ -127,7 +143,7 @@ public class Node {
                 line = edges.get(i).getLine();
             }
         }
-        return (line);
+        return line;
     }
 
     @Override
