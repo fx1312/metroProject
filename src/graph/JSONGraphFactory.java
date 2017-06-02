@@ -43,8 +43,6 @@ public class JSONGraphFactory {
 
         addStationsToGraph(graph, stations);
 
-//        addLinesToStations(graph, lignes);
-
         addEdgesBetweenStations(graph, routes);
 
         addFootConnectionsToStations(graph, correspondances);
@@ -98,6 +96,8 @@ public class JSONGraphFactory {
 
             String routeType = route.getString("type");
 
+            // We only need to handle metro routes (we don't care about other means of transportations,
+            // and connections are handled using the fact that a station has several edges from/to itself)
             if (routeType.equals("metro")) {
                 JSONArray stops = route.getJSONArray("arrets");
                 String lineName = route.getString("ligne");
@@ -112,17 +112,6 @@ public class JSONGraphFactory {
                     addEdgeBetweenNodes(graph, nodeFromIndex, nodeToIndex, lineName, EdgeType.METRO_LINE);
                 }
             }
-
-//            if (routeType.equals("corresp")) {
-//                JSONArray stops = route.getJSONArray("arrets");
-//                String lineName = "connection";
-//                for (int j = 0; j < stops.length(); j++) {
-//                    int nodeFromIndex = Integer.parseInt(stops.getString(j));
-//                    int nodeToIndex = Integer.parseInt(stops.getString(j + 1));
-//
-//                    addEdgeBetweenNodes(graph, nodeFromIndex, nodeToIndex, lineName, EdgeType.METRO_LINE);
-//                }
-//            }
         }
     }
 
@@ -130,14 +119,12 @@ public class JSONGraphFactory {
         Map<Integer, Node> nodes = graph.getNodes();
         Iterator iteratorStation = stations.keys();
 
-        // Parcour les stations et les ajoute au graph.
+        // Parcourt les stations et les ajoute au graph.
         while (iteratorStation.hasNext()) {
-
-            // Variable temporaire qui stocke les lignes auxquels appartiennent les stations
-            List<Integer> linesStationBelongsTo = new ArrayList<>();
-
             // Cré un objet JSON avec les données de la station
             JSONObject station = stations.getJSONObject(iteratorStation.next().toString());
+
+            List<String> linesStationBelongsTo = new ArrayList<>();
 
             // Ne sélectionne que les stations de type "metro"
             if (station.get("type").toString().equals("metro")) {
@@ -147,21 +134,13 @@ public class JSONGraphFactory {
                 JSONArray listeLignesMetro = lignesMetro.getJSONArray("metro");
 
                 for (int i = 0; i < listeLignesMetro.length(); i++) {
-                    if (listeLignesMetro.get(i).equals("3B") || listeLignesMetro.get(i).equals("7B")) {
-                        if (listeLignesMetro.get(i).equals("3B")) {
-                            linesStationBelongsTo.add(3);
-                        } else {
-                            linesStationBelongsTo.add(7);
-                        }
-                    } else {
-                        linesStationBelongsTo.add(Integer.parseInt(listeLignesMetro.get(i).toString()));
-                    }
+                    linesStationBelongsTo.add(listeLignesMetro.getString(i));
                 }
 
-                // Cré la station ainsi que ses différentes propriétés et l'ajoute au graphe.
-                nodes.put(Integer.parseInt(station.get("num").toString()),
+                // Creates the station and add it to the graph :
+                Integer id = Integer.parseInt(station.get("num").toString());
+                nodes.put(id,
                         new Node(
-                                Integer.parseInt(station.get("num").toString()),
                                 station.get("nom").toString(),
                                 linesStationBelongsTo,
                                 Double.parseDouble(station.get("lng").toString()),
@@ -211,8 +190,6 @@ public class JSONGraphFactory {
     }
 
     private static void addEdgeBetweenNodes(Graph graph, int node1Index, int node2Index, String line, EdgeType type) {
-        // TODO use graph.findNodeById, deprecate graph.getNodes ?
-
         Map<Integer, Node> nodes = graph.getNodes();
 
         Node node1 = nodes.get(node1Index);

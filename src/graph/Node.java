@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Node {
-    private int id;
     private String name;
     private List<Edge> edges = new ArrayList<>();
-    private List<Integer> lines = new ArrayList<>();
+    private List<String> lines = new ArrayList<>();
     private List<Node> neighbors = new ArrayList<>();
     private double lng;
     private double lat;
@@ -17,8 +16,7 @@ public class Node {
     private int eccentricity = -1;
     private boolean marked = false;
 
-    Node(int id, String name, List<Integer> lines, double lng, double lat) {
-        this.id = id;
+    Node(String name, List<String> lines, double lng, double lat) {
         this.name = name;
         this.lines = lines;
         this.lat = lat;
@@ -41,21 +39,11 @@ public class Node {
         this.name = name;
     }
 
-    @Deprecated
-    public int getId() {
-        return id;
-    }
-
-    @Deprecated
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public List<Integer> getLines() {
+    public List<String> getLines() {
         return lines;
     }
 
-    public void setLines(List<Integer> lines) {
+    public void setLines(List<String> lines) {
         this.lines = lines;
     }
 
@@ -133,7 +121,6 @@ public class Node {
     public String toString() {
         return "graph.Node{" +
                 "name='" + name + '\'' +
-                ", id=" + id +
                 ", lng=" + lng +
                 ", lat=" + lat +
                 '}';

@@ -21,9 +21,7 @@ public class Main {
             return;
         }
 
-
         // Pathfinder using Dijkstra's algorithm :
-
         DijkstraPathfinder dijkstraPathfinder = new DijkstraPathfinder(metro);
 
         metro.printGraph();

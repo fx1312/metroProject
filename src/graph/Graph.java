@@ -9,17 +9,11 @@ public class Graph {
         return nodes;
     }
 
-    /**
-     * Don't call me directly ! Use the graph factory !
-     */
-    protected Graph () {
-    }
-
     public void printGraph() {
         for (Map.Entry<Integer, Node> mapentry : nodes.entrySet()) {
             System.out.println("*****************************");
             System.out.println("Nom: " + mapentry.getValue().getName());
-            System.out.println("ID: " + mapentry.getValue().getId());
+            System.out.println("ID: " + mapentry.getKey());
             System.out.println("LNG: " + mapentry.getValue().getLng());
             System.out.println("LAT: " + mapentry.getValue().getLat());
 
@@ -42,18 +36,5 @@ public class Graph {
             }
         }
         return null;
-    }
-
-    public int nameToId(String name) {
-        for (Map.Entry<Integer, Node> mapentry : nodes.entrySet()) {
-            if (mapentry.getValue().getName().equals(name)) {
-                return mapentry.getValue().getId();
-            }
-        }
-        return -1;
-    }
-
-    public Node findNodeById(int id) {
-        return nodes.get(id);
     }
 }

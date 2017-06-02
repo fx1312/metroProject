@@ -3,8 +3,8 @@ package graph;
 public class Edge {
     private Node nodeFrom;
     private Node nodeTo;
-    int weight = -1; //Longueur en temps, calculer à l'aide de la lat et la lng.
-    String line; //Ligne à laquelle appartient cette liaison.
+    private int weight = -1; //Longueur en mètres, calculer à l'aide de la lat et la lng.
+    private String line; //Ligne à laquelle appartient cette liaison.
     private EdgeType type;
 
     Edge(Node nodeFrom, Node nodeTo, String line, EdgeType type) {
