@@ -12,9 +12,22 @@ function stationInfo(name) {
   });
 }
 
-function listAllConnections() {
+function describeCorresp() {
+  metro.corresp.forEach(function(correspondance) {
+    console.log("Correspondance :");
+    correspondance.forEach(function(s) {
+      var station = metro.stations[s];
+      console.log(station.nom + "(" + s + ")");
+      console.log(station.lignes);
+    })
+    console.log("\n\n");
+  })
+}
+
+function describeRoutes() {
   // List all connections :
   Object.keys(metro.routes).forEach(function(r) {
+    console.log("Route :");
     // console.log(metro.routes[r].type);
     if (metro.routes[r].type == "corresp") {
       var arrets = metro.routes[r].arrets;
@@ -40,7 +53,8 @@ function listAllConnections() {
 
       console.log("Correspondance : " + stationsNames.join(", ") + " sur les lignes : " + stationsLines.join(', '))
     }
+    console.log("\n\n");
   });
 }
 
-listAllConnections();
+describeCorresp();

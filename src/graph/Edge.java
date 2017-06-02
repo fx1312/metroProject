@@ -14,6 +14,16 @@ public class Edge {
         this.type = type;
     }
 
+    @Override
+    public String toString() {
+        return "Edge{" +
+                "nodeFrom=" + nodeFrom +
+                ", nodeTo=" + nodeTo +
+                ", weight=" + weight +
+                ", line='" + line + '\'' +
+                ", type=" + type +
+                '}';
+    }
 
     public Node getNodeFrom() {
         return nodeFrom;

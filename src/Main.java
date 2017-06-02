@@ -34,8 +34,15 @@ public class Main {
 
         PathUtils.printPath(dijkstraPathfinder.getPath(), dijkstraPathfinder.getPathLength());
 
-        dijkstraPathfinder.computeShortestPath("Etienne Marcel", "Hotel de Ville");
+        dijkstraPathfinder.computeShortestPath("Chaussee d'Antin (La Fayette)", "Madeleine");
 
+        PathUtils.printPath(dijkstraPathfinder.getPath(), dijkstraPathfinder.getPathLength());
+
+        dijkstraPathfinder.computeShortestPath("Cluny-La Sorbonne", "Saint-Michel");
+        PathUtils.printPath(dijkstraPathfinder.getPath(), dijkstraPathfinder.getPathLength());
+
+        // TODO what if the station names are not found ?
+        dijkstraPathfinder.computeShortestPath("Gare de l'Est (Verdun)", "La Chapelle");
         PathUtils.printPath(dijkstraPathfinder.getPath(), dijkstraPathfinder.getPathLength());
 
         // Diameter and longest path of the metro :

@@ -47,92 +47,46 @@ public class JSONGraphFactory {
 
         addEdgesBetweenStations(graph, routes);
 
-        addConnectionsToStations(graph, correspondances);
+        addFootConnectionsToStations(graph, correspondances);
 
         computeNeighborsAndWeights(graph);
 
         return graph;
     }
 
-    private static void addConnectionsToStations(Graph graph, JSONArray correspondances) {
+    private static void addFootConnectionsToStations(Graph graph, JSONArray correspondances) {
+        // Iterate over the list of
         for (int i = 0; i < correspondances.length(); i++) {
-
-            // Cré une liste contenant la correspondance (deux ou trois arrêts)
-            JSONArray correspTemp = correspondances.getJSONArray(i);
+            JSONArray correspondance = correspondances.getJSONArray(i);
 
             Map<Integer, Node> nodes = graph.getNodes();
 
-            // Si la correspondance est constitué de deux arrets de type metro
-            if (correspTemp.length() == 2 && !correspTemp.getString(0).contains("_") && !correspTemp.getString(1).contains("_") && nodes.containsKey(Integer.parseInt(correspTemp.getString(0))) && nodes.containsKey(Integer.parseInt(correspTemp.getString(1)))) {
+            List<Integer> nodesToLink = new ArrayList<>();
 
-                int node1Index = Integer.parseInt(correspTemp.getString(0));
-                int node2Index = Integer.parseInt(correspTemp.getString(1));
-
-                // TODO addUndirectedEdge and addDirectedEdge :
-                addEdgeBetweenNodes(graph, node1Index, node2Index, "connection", EdgeType.CONNECTION);
-                addEdgeBetweenNodes(graph, node2Index, node1Index, "connection", EdgeType.CONNECTION);
+            // Only keep stations we know about (aka metro stations) :
+            for (int j = 0; j < correspondance.length(); j ++) {
+                try {
+                    String correspondanceLine = correspondance.getString(j);
+                    int nodeIndex = Integer.parseInt(correspondanceLine);
+                    Node node = nodes.get(nodeIndex);
+                    if (node != null) nodesToLink.add(nodeIndex);
+                } catch (NumberFormatException e) {
+                    // No-op ! This station was not recognised, we go on to the next one
+                }
             }
 
-            // Si la correspondance est constitué de trois arrets de type metro
-            if (correspTemp.length() == 3 && !correspTemp.getString(0).contains("_") && !correspTemp.getString(1).contains("_") && !correspTemp.getString(2).contains("_") && nodes.containsKey(Integer.parseInt(correspTemp.getString(0))) && nodes.containsKey(Integer.parseInt(correspTemp.getString(1))) && nodes.containsKey(Integer.parseInt(correspTemp.getString(2)))) {
+            if (nodesToLink.size() == 2) {
+                addUndirectedEdgeBetweenNodes(graph, nodesToLink.get(0), nodesToLink.get(1), "Correspondance à pied", EdgeType.CONNECTION);
+            }
 
+            if (nodesToLink.size() == 3) {
+                addUndirectedEdgeBetweenNodes(graph, nodesToLink.get(0), nodesToLink.get(1), "Correspondance à pied", EdgeType.CONNECTION);
+                addUndirectedEdgeBetweenNodes(graph, nodesToLink.get(0), nodesToLink.get(2), "Correspondance à pied", EdgeType.CONNECTION);
+                addUndirectedEdgeBetweenNodes(graph, nodesToLink.get(1), nodesToLink.get(2), "Correspondance à pied", EdgeType.CONNECTION);
+            }
 
-                System.out.println("swaggity swag"); // never printed out ==> condition above seems to be always false
-
-
-                nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
-                        .addEdge(
-                                new Edge(
-                                        nodes.get(Integer.parseInt(correspTemp.getString(0))),
-                                        nodes.get(Integer.parseInt(correspTemp.getString(1))),
-                                        "connection",
-                                        EdgeType.CONNECTION
-                                ));
-
-                nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
-                        .addEdge(
-                                new Edge(
-                                        nodes.get(Integer.parseInt(correspTemp.getString(1))),
-                                        nodes.get(Integer.parseInt(correspTemp.getString(0))),
-                                        "connection",
-                                        EdgeType.CONNECTION
-                                ));
-
-                nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
-                        .addEdge(
-                                new Edge(
-                                        nodes.get(Integer.parseInt(correspTemp.getString(0))),
-                                        nodes.get(Integer.parseInt(correspTemp.getString(2))),
-                                        "connection",
-                                        EdgeType.CONNECTION
-                                ));
-
-                nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
-                        .addEdge(
-                                new Edge(
-                                        nodes.get(Integer.parseInt(correspTemp.getString(2))),
-                                        nodes.get(Integer.parseInt(correspTemp.getString(0))),
-                                        "connection",
-                                        EdgeType.CONNECTION
-                                ));
-
-                nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
-                        .addEdge(
-                                new Edge(
-                                        nodes.get(Integer.parseInt(correspTemp.getString(2))),
-                                        nodes.get(Integer.parseInt(correspTemp.getString(3))),
-                                        "connection",
-                                        EdgeType.CONNECTION
-                                ));
-
-                nodes.get(Integer.parseInt(correspTemp.get(0).toString()))
-                        .addEdge(
-                                new Edge(
-                                        nodes.get(Integer.parseInt(correspTemp.getString(3))),
-                                        nodes.get(Integer.parseInt(correspTemp.getString(2))),
-                                        "connection",
-                                        EdgeType.CONNECTION
-                                ));
+            if (nodesToLink.size() > 3) {
+                throw new RuntimeException("Tu m'as oublié, Jack");
             }
         }
     }
@@ -169,72 +123,6 @@ public class JSONGraphFactory {
 //                    addEdgeBetweenNodes(graph, nodeFromIndex, nodeToIndex, lineName, EdgeType.METRO_LINE);
 //                }
 //            }
-        }
-    }
-
-    private static void addLinesToStations(Graph graph, JSONObject lignes) {
-        Iterator iteratorLignes = lignes.keys();
-
-        while (iteratorLignes.hasNext()) {
-
-            String lineName = iteratorLignes.next().toString();
-
-            // Cré un objet JSON contenant les données de la ligne.
-            JSONObject ligne = lignes.getJSONObject(lineName);
-
-            // Ne cré les connexions que pour les lignes de metro.
-            if (ligne.has("arrets") && ligne.get("type").equals("metro")) {
-
-                // Cré  un tableau contenant les arrets de la ligne.
-                JSONArray arretsTab = ligne.getJSONArray("arrets");
-
-                for (int j = 0; j < arretsTab.length(); j++) {
-
-                    // Cré une liste contenant les arrets de la ligne dans l'ordre réel
-                    JSONArray arrets = arretsTab.getJSONArray(j);
-
-                    // Pour toute le lignes sauf la 10 (cas spécial)
-                    if (!lineName.equals("10")) {
-                        for (int i = 0; i < arrets.length() - 1; i++) {
-
-                            int node1index = Integer.parseInt(arrets.getString(i));
-                            int node2index = Integer.parseInt(arrets.getString(i + 1));
-
-                            addEdgeBetweenNodes(graph, node1index, node2index, lineName, EdgeType.METRO_LINE);
-                            addEdgeBetweenNodes(graph, node2index, node1index, lineName, EdgeType.METRO_LINE);
-                        }
-                    } else {
-                        // Cas de la ligne 10
-                        // TODO this is completely broken (try pathfinder.dijkstra("Boulogne-Jean-Jaures", "Javel-Andre-Citroen");)
-                        if (j == 0) {
-                            for (int i = 0; i < arrets.length() - 1; i++) {
-
-                                int node1index = Integer.parseInt(arrets.getString(i));
-                                int node2index = Integer.parseInt(arrets.getString(i + 1));
-
-                                addEdgeBetweenNodes(graph, node1index, node2index, lineName, EdgeType.METRO_LINE);
-                            }
-
-                            for (int i = arrets.length() - 1; i > 5; i--) {
-
-                                int node1index = Integer.parseInt(arrets.getString(i));
-                                int node2index = Integer.parseInt(arrets.getString(i - 1));
-
-                                addEdgeBetweenNodes(graph, node1index, node2index, lineName, EdgeType.METRO_LINE);
-                            }
-                        }
-                        if (j == 1) {
-                            for (int i = arrets.length() - 1; i > 0; i--) {
-
-                                int node1index = Integer.parseInt(arrets.getString(i));
-                                int node2index = Integer.parseInt(arrets.getString(i - 1));
-
-                                addEdgeBetweenNodes(graph, node1index, node2index, lineName, EdgeType.METRO_LINE);
-                            }
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -310,7 +198,16 @@ public class JSONGraphFactory {
             Double distance = EarthCalc.getHarvesineDistance(station1, station2);
             Long dL = Math.round(distance);
             edge.setWeight(dL.intValue());
+
+            if (edge.getType().equals(EdgeType.CONNECTION)) {
+                System.out.println(edge);
+            }
         });
+    }
+
+    private static void addUndirectedEdgeBetweenNodes(Graph graph, int node1Index, int node2Index, String line, EdgeType type) {
+        addEdgeBetweenNodes(graph, node1Index, node2Index, line, type);
+        addEdgeBetweenNodes(graph, node2Index, node1Index, line, type);
     }
 
     private static void addEdgeBetweenNodes(Graph graph, int node1Index, int node2Index, String line, EdgeType type) {
@@ -320,6 +217,7 @@ public class JSONGraphFactory {
 
         Node node1 = nodes.get(node1Index);
         Node node2 = nodes.get(node2Index);
+
         Edge edge = new Edge(node1, node2, line, type);
 
         node1.addEdge(edge);
