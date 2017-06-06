@@ -12,11 +12,11 @@ public class Node {
     private double lat;
 
     private Node predecessor;
-    private int distanceFromSource = Integer.MAX_VALUE; // TODO Integer.MAX_VALUE
+    private int distanceFromSource = Integer.MAX_VALUE;
     private int eccentricity = -1;
     private boolean marked = false;
 
-    Node(String name, List<String> lines, double lng, double lat) {
+    public Node(String name, List<String> lines, double lng, double lat) {
         this.name = name;
         this.lines = lines;
         this.lat = lat;

@@ -37,7 +37,31 @@ public class Graph {
                 return mapentry.getValue();
             }
         }
-        return null;
+
+        throw new RuntimeException("Node not found");
+//        return null;
+    }
+
+    public void addUndirectedEdgeBetweenNodes(int node1Index, int node2Index, String line, EdgeType type) {
+        addEdgeBetweenNodes(node1Index, node2Index, line, type);
+        addEdgeBetweenNodes(node2Index, node1Index, line, type);
+    }
+
+    public void addEdgeBetweenNodes(int node1Index, int node2Index, String line, EdgeType type) {
+        Node node1 = nodes.get(node1Index);
+        Node node2 = nodes.get(node2Index);
+
+        Edge edge = new Edge(node1, node2, line, type);
+
+        edges.add(edge);
+        node1.addEdge(edge);
+    }
+
+    public void removeEdge(Edge edge) {
+        edges.remove(edge);
+        List<Edge> nodeFromEdges = edge.getNodeFrom().getEdges();
+
+        nodeFromEdges.remove(edge);
     }
 
     public List<Edge> getEdges() {

@@ -6,13 +6,14 @@ import graph.Node;
 
 import java.util.*;
 
-public class DijkstraPathfinder extends PathFinder {
+public class DijkstraPathFinder extends PathFinder {
     private Graph graph;
 
     private List<Edge> path = new ArrayList<>();
     private int pathLength;
+    private List<Node> traversedNodes = new ArrayList<>();
 
-    public DijkstraPathfinder(Graph graph) {
+    public DijkstraPathFinder(Graph graph) {
         this.graph = graph;
     }
 
@@ -35,9 +36,7 @@ public class DijkstraPathfinder extends PathFinder {
 
 
     @Override
-    public void runTraversal(Node sourceNode) {
-        resetBeforeTraversal();
-
+    public void traverse(Node sourceNode) {
         Node currentNode = sourceNode;
         currentNode.setDistanceFromSource(0);
 
@@ -73,6 +72,23 @@ public class DijkstraPathfinder extends PathFinder {
         this.pathLength = pathLength;
     }
 
+    @Override
+    public List<Node> getTraversedNodes() {
+        for (Map.Entry<Integer, Node> nodeEntry : graph.getNodes().entrySet()) {
+            Node node = nodeEntry.getValue();
+
+            // Only keep nodes towards which we have found a path
+            if (node.getDistanceFromSource() < Integer.MAX_VALUE) traversedNodes.add(node);
+        }
+
+        return traversedNodes;
+    }
+
+    @Override
+    public void clearTraversedNodes() {
+        traversedNodes = new ArrayList<>();
+    }
+
     // TODO a better way to do this could be to keep up-to-date a Map that would map distances of unmarked Nodes to these nodes (then the number of Nodes to iterate on would decrease as the algorithm runs)
     private Node findUnmarkedNodeAtMinimalDistance() {
         Map<Integer, Node> nodes = graph.getNodes();
@@ -83,12 +99,8 @@ public class DijkstraPathfinder extends PathFinder {
 
             // Keep only unmarked nodes :
             if (currentNode.isMarked()) continue;
-            if (selectedNode == null) {
-                selectedNode = currentNode;
-                continue;
-            }
 
-            if (currentNode.getDistanceFromSource() < selectedNode.getDistanceFromSource()) {
+            if (selectedNode == null || currentNode.getDistanceFromSource() < selectedNode.getDistanceFromSource()) {
                 selectedNode = currentNode;
             }
         }

@@ -2,13 +2,13 @@ package graphproperties;
 
 import graph.Edge;
 import graph.Graph;
-import pathfinding.DijkstraPathfinder;
+import pathfinding.DijkstraPathFinder;
 import pathfinding.PathFinder;
 
 import java.util.List;
 
 public class DijkstraGraphProperties extends GraphProperties {
-    private DijkstraPathfinder dijkstraPathfinder;
+    private DijkstraPathFinder dijkstraPathFinder;
     private Graph graph;
 
     private Integer radius;
@@ -19,12 +19,12 @@ public class DijkstraGraphProperties extends GraphProperties {
 
     public DijkstraGraphProperties(Graph graph) {
         this.graph = graph;
-        dijkstraPathfinder = new DijkstraPathfinder(graph);
+        dijkstraPathFinder = new DijkstraPathFinder(graph);
     }
 
     @Override
     protected PathFinder getPathFinder() {
-        return dijkstraPathfinder;
+        return dijkstraPathFinder;
     }
 
     @Override

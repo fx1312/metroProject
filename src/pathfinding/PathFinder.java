@@ -10,6 +10,28 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class PathFinder {
+    abstract public List<Edge> getPath();
+
+    abstract public int getPathLength();
+
+    abstract Graph getGraph();
+
+    abstract public void traverse(Node sourceNode);
+
+    abstract public void performChecks();
+
+    abstract public void setPath(List<Edge> path);
+
+    abstract public void setPathLength(int pathLength);
+
+    abstract public List<Node> getTraversedNodes();
+
+    abstract public void clearTraversedNodes();
+
+    public boolean hasPathTo(Node node) {
+        return node.getDistanceFromSource() < Integer.MAX_VALUE;
+    }
+
     public void computeShortestPath(String departure, String arrival) {
         Node sourceNode = getGraph().findNodeByName(departure);
         Node targetNode = getGraph().findNodeByName(arrival);
@@ -20,12 +42,16 @@ public abstract class PathFinder {
     public void computeShortestPath(Node departure, Node arrival) {
         performChecks();
 
-        runTraversal(departure);
+        resetNodesProperties();
 
-        computeShortestPathWithoutRunningTraversal(departure, arrival);
+        clearTraversedNodes();
+
+        traverse(departure);
+
+        computeShortestPathWithoutTraversing(departure, arrival);
     }
 
-    public void computeShortestPathWithoutRunningTraversal(Node departure, Node arrival) {
+    public void computeShortestPathWithoutTraversing(Node departure, Node arrival) {
         int pathLength = arrival.getDistanceFromSource();
 
         if (pathLength == Integer.MAX_VALUE) {
@@ -58,19 +84,7 @@ public abstract class PathFinder {
         this.setPathLength(pathLength);
     }
 
-    public boolean hasPathTo(Node node) {
-        return node.getDistanceFromSource() < Integer.MAX_VALUE;
-    }
-
-    abstract public List<Edge> getPath();
-
-    abstract public int getPathLength();
-
-    abstract Graph getGraph();
-
-    abstract public void runTraversal(Node sourceNode);
-
-    void resetBeforeTraversal() {
+    public void resetNodesProperties() {
         Map<Integer, Node> nodes = getGraph().getNodes();
 
         nodes.forEach((id, node) -> {
@@ -79,11 +93,4 @@ public abstract class PathFinder {
             node.setPredecessor(null);
         });
     }
-
-    // TODO make this method abstract and override it to perform required checks inside the implementations
-    abstract public void performChecks();
-
-    abstract public void setPath(List<Edge> path);
-
-    abstract public void setPathLength(int pathLength);
 }

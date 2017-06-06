@@ -5,6 +5,7 @@ import graph.Graph;
 import graph.Node;
 import pathfinding.PathFinder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,7 +18,9 @@ public abstract class GraphProperties {
 
         for (Map.Entry<Integer, Node> currentEntry : nodes.entrySet()) {
             Node currentNode = currentEntry.getValue();
-            pathFinder.runTraversal(currentNode);
+
+            pathFinder.resetNodesProperties(); // TODO necessary ?
+            pathFinder.traverse(currentNode);
 
             // Find the node that has the maximum distance with the current Node
             // The distance between the current node and the farthest Node is the current Node's eccentricity
@@ -42,7 +45,7 @@ public abstract class GraphProperties {
 
                     // If we have found a new longest path (aka a new value for the diameter of the graph),
                     // we compute the actual path so that we can brag about it elsewhere :
-                    pathFinder.computeShortestPathWithoutRunningTraversal(currentNode, maxEntry.getValue());
+                    pathFinder.computeShortestPathWithoutTraversing(currentNode, maxEntry.getValue());
 
                     setLongestShortestPath(pathFinder.getPath());
                     setLongestShortestPathLength(pathFinder.getPathLength());
@@ -67,7 +70,9 @@ public abstract class GraphProperties {
 
         for (Map.Entry<Integer, Node> currentEntry : nodes.entrySet()) {
             Node currentNode = currentEntry.getValue();
-            pathFinder.runTraversal(currentNode);
+
+            pathFinder.resetNodesProperties();
+            pathFinder.traverse(currentNode);
 
             // Compute the edges betweenness :
             for (Map.Entry<Integer, Node> entry : nodes.entrySet()) {
@@ -78,7 +83,7 @@ public abstract class GraphProperties {
                 // node != currentNode : prevent counting the path from currentNode to currentNode
                 if (pathFinder.hasPathTo(node) && node != currentNode) {
 
-                    pathFinder.computeShortestPathWithoutRunningTraversal(currentNode, node);
+                    pathFinder.computeShortestPathWithoutTraversing(currentNode, node);
 
                     List<Edge> path = pathFinder.getPath();
 
@@ -88,6 +93,26 @@ public abstract class GraphProperties {
                 }
             }
         }
+    }
+
+    public List<List<Node>> connectedComponents() {
+        List<List<Node>> connectedComponents = new ArrayList<>();
+
+        PathFinder pathFinder = getPathFinder();
+        pathFinder.resetNodesProperties();
+
+        for (Map.Entry<Integer, Node> nodeEntry: getGraph().getNodes().entrySet()) {
+            Node node = nodeEntry.getValue();
+            if (!node.isMarked()) {
+                pathFinder.clearTraversedNodes();
+                pathFinder.traverse(node);
+
+                List<Node> markedNodes = pathFinder.getTraversedNodes();
+                connectedComponents.add(markedNodes);
+            }
+        }
+
+        return connectedComponents;
     }
 
     protected abstract PathFinder getPathFinder();

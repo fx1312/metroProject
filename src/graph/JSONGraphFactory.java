@@ -75,13 +75,13 @@ public class JSONGraphFactory {
 
 
             if (nodesToLink.size() == 2) {
-                addUndirectedEdgeBetweenNodes(graph, nodesToLink.get(0), nodesToLink.get(1), "Correspondance à pied", EdgeType.CONNECTION);
+                graph.addUndirectedEdgeBetweenNodes(nodesToLink.get(0), nodesToLink.get(1), "Correspondance à pied", EdgeType.CONNECTION);
             }
 
             if (nodesToLink.size() == 3) {
-                addUndirectedEdgeBetweenNodes(graph, nodesToLink.get(0), nodesToLink.get(1), "Correspondance à pied", EdgeType.CONNECTION);
-                addUndirectedEdgeBetweenNodes(graph, nodesToLink.get(0), nodesToLink.get(2), "Correspondance à pied", EdgeType.CONNECTION);
-                addUndirectedEdgeBetweenNodes(graph, nodesToLink.get(1), nodesToLink.get(2), "Correspondance à pied", EdgeType.CONNECTION);
+                graph.addUndirectedEdgeBetweenNodes(nodesToLink.get(0), nodesToLink.get(1), "Correspondance à pied", EdgeType.CONNECTION);
+                graph.addUndirectedEdgeBetweenNodes(nodesToLink.get(0), nodesToLink.get(2), "Correspondance à pied", EdgeType.CONNECTION);
+                graph.addUndirectedEdgeBetweenNodes(nodesToLink.get(1), nodesToLink.get(2), "Correspondance à pied", EdgeType.CONNECTION);
             }
 
             if (nodesToLink.size() > 3) {
@@ -111,7 +111,7 @@ public class JSONGraphFactory {
                     int nodeToIndex = Integer.parseInt(stops.getString(j + 1));
 
                     if (!edgeExists(graph, nodeFromIndex, nodeToIndex, lineName, EdgeType.METRO_LINE)) {
-                        addEdgeBetweenNodes(graph, nodeFromIndex, nodeToIndex, lineName, EdgeType.METRO_LINE);
+                        graph.addEdgeBetweenNodes(nodeFromIndex, nodeToIndex, lineName, EdgeType.METRO_LINE);
                     }
                 }
             }
@@ -197,22 +197,5 @@ public class JSONGraphFactory {
             Long dL = Math.round(distance);
             edge.setWeight(dL.intValue());
         });
-    }
-
-    private static void addUndirectedEdgeBetweenNodes(Graph graph, int node1Index, int node2Index, String line, EdgeType type) {
-        addEdgeBetweenNodes(graph, node1Index, node2Index, line, type);
-        addEdgeBetweenNodes(graph, node2Index, node1Index, line, type);
-    }
-
-    private static void addEdgeBetweenNodes(Graph graph, int node1Index, int node2Index, String line, EdgeType type) {
-        Map<Integer, Node> nodes = graph.getNodes();
-
-        Node node1 = nodes.get(node1Index);
-        Node node2 = nodes.get(node2Index);
-
-        Edge edge = new Edge(node1, node2, line, type);
-
-        graph.getEdges().add(edge);
-        node1.addEdge(edge);
     }
 }

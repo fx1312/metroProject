@@ -4,11 +4,8 @@ import graph.Edge;
 import graph.Graph;
 import graph.Node;
 
-import java.net.ServerSocket;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
 
 public class BFSPathFinder extends PathFinder {
     private Graph graph;
@@ -17,6 +14,7 @@ public class BFSPathFinder extends PathFinder {
 
     private List<Edge> path = new ArrayList<>();
     private int pathLength;
+    private List<Node> traversedNodes = new ArrayList<>();
 
     public BFSPathFinder(Graph graph) {
         this.graph = graph;
@@ -37,13 +35,13 @@ public class BFSPathFinder extends PathFinder {
     }
 
     @Override
-    public void runTraversal(Node sourceNode) {
-        resetBeforeTraversal();
+    public void traverse(Node sourceNode) {
         queue = new ArrayList<>();
 
         enqueue(sourceNode);
         sourceNode.setDistanceFromSource(0);
         sourceNode.setMarked(true);
+        traversedNodes.add(sourceNode);
 
         while (!isQueueEmpty()) {
             Node currentNode = popQueue();
@@ -62,6 +60,8 @@ public class BFSPathFinder extends PathFinder {
 
                     enqueue(neighbor);
                     neighbor.setMarked(true);
+//                    System.out.println(traversedNodes.contains(neighbor));
+                    traversedNodes.add(neighbor);
                 }
             }
         }
@@ -95,5 +95,15 @@ public class BFSPathFinder extends PathFinder {
     @Override
     public void setPathLength(int pathLength) {
         this.pathLength = pathLength;
+    }
+
+    @Override
+    public List<Node> getTraversedNodes() {
+        return traversedNodes;
+    }
+
+    @Override
+    public void clearTraversedNodes() {
+        traversedNodes = new ArrayList<>();
     }
 }
