@@ -33,65 +33,8 @@ public class DijkstraPathfinder extends PathFinder {
         return graph;
     }
 
+
     @Override
-    public void computeShortestPath(String departure, String arrival) {
-        Node sourceNode = graph.findNodeByName(departure);
-        Node targetNode = graph.findNodeByName(arrival);
-
-        computeShortestPath(sourceNode, targetNode);
-    }
-
-    public void computeShortestPath(Node sourceNode, Node targetNode) {
-        // TODO check every weight is positive ?
-        int pathLength = 0;
-
-        runTraversal(sourceNode);
-
-        pathLength = targetNode.getDistanceFromSource();
-
-        if (pathLength == Integer.MAX_VALUE) {
-            System.out.println(sourceNode);
-            System.out.println(targetNode);
-            throw new PathFindingException("No path exists between source and target node !");
-        }
-
-        // Build the successive path steps, going backwards
-        // (because each node has a reference towards its predecessor)
-        List<Edge> pathSteps = new ArrayList<>();
-        Node currentNode = targetNode;
-
-        Node predecessor = targetNode.getPredecessor();
-
-        Edge edgeToHere = predecessor.getEdgeToNeighbor(currentNode);
-        pathSteps.add(edgeToHere);
-
-        currentNode = predecessor;
-
-        while (! currentNode.equals(sourceNode)) {
-            predecessor = currentNode.getPredecessor();
-            edgeToHere = predecessor.getEdgeToNeighbor(currentNode);
-            pathSteps.add(edgeToHere);
-
-            currentNode = predecessor;
-        }
-
-        Collections.reverse(pathSteps);
-        this.path = pathSteps;
-        this.pathLength = pathLength;
-    }
-
-    private boolean areAllMarked() {
-        Map<Integer, Node> nodes = graph.getNodes();
-
-        boolean b = true;
-        for (int currentID : nodes.keySet()) {
-            if (!nodes.get(currentID).isMarked()) {
-                b = false;
-            }
-        }
-        return b;
-    }
-
     public void runTraversal(Node sourceNode) {
         resetBeforeTraversal();
 
@@ -110,6 +53,21 @@ public class DijkstraPathfinder extends PathFinder {
             // Find the new current node
             currentNode = findUnmarkedNodeAtMinimalDistance();
         }
+    }
+
+    @Override
+    public void performChecks() {
+        // TODO check every weight is positive
+    }
+
+    @Override
+    public void setPath(List<Edge> path) {
+        this.path = path;
+    }
+
+    @Override
+    public void setPathLength(int pathLength) {
+        this.pathLength = pathLength;
     }
 
     // TODO a better way to do this could be to keep up-to-date a Map that would map distances of unmarked Nodes to these nodes (then the number of Nodes to iterate on would decrease as the algorithm runs)

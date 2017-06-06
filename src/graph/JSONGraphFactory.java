@@ -162,7 +162,7 @@ public class JSONGraphFactory {
 
         edges.forEach(edge ->  {
             // Computing Node's neighbors :
-            node.getNeighbors().add(edge.getNodeTo());
+            node.addNeighbor(edge.getNodeTo());
 
             // Computing edges weights using geocalc to calculate the distance between two (lat, lng) pairs :
             Coordinate latStation1 = new DegreeCoordinate(edge.getNodeFrom().getLat());
@@ -177,10 +177,6 @@ public class JSONGraphFactory {
             Double distance = EarthCalc.getHarvesineDistance(station1, station2);
             Long dL = Math.round(distance);
             edge.setWeight(dL.intValue());
-
-            if (edge.getType().equals(EdgeType.CONNECTION)) {
-                System.out.println(edge);
-            }
         });
     }
 

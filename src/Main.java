@@ -2,9 +2,12 @@ import com.peertopark.java.geocalc.Coordinate;
 import com.peertopark.java.geocalc.DegreeCoordinate;
 import com.peertopark.java.geocalc.EarthCalc;
 import com.peertopark.java.geocalc.Point;
+import com.sun.javafx.runtime.SystemProperties;
 import graph.Graph;
 import graph.JSONGraphFactory;
+import graphproperties.BFSDiameter;
 import graphproperties.DijkstraDiameter;
+import pathfinding.BFSPathFinder;
 import pathfinding.DijkstraPathfinder;
 import pathfinding.PathUtils;
 
@@ -21,10 +24,36 @@ public class Main {
             return;
         }
 
-        // Pathfinder using Dijkstra's algorithm :
-        DijkstraPathfinder dijkstraPathfinder = new DijkstraPathfinder(metro);
-
         metro.printGraph();
+
+        bfsDemo(metro);
+        System.out.println("");
+
+        dijkstraDemo(metro);
+
+
+    }
+
+    private static void bfsDemo(Graph metro) {
+        BFSPathFinder bfsPathFinder = new BFSPathFinder(metro);
+        bfsPathFinder.computeShortestPath("La Courneuve-8-Mai-1945", "Stalingrad");
+
+        PathUtils.printPath(bfsPathFinder.getPath(), bfsPathFinder.getPathLength());
+
+        BFSDiameter bfsDiameter = new BFSDiameter(metro);
+
+        bfsDiameter.computeGraphProperties();
+
+        PathUtils.printPath(
+                bfsDiameter.getLongestShortestPath(),
+                bfsDiameter.getLongestShortestPathLength(),
+                "stations"
+        );
+    }
+
+    private static void dijkstraDemo(Graph graph) {
+        DijkstraPathfinder dijkstraPathfinder = new DijkstraPathfinder(graph);
+
         System.out.println();
         System.out.println();
 
@@ -45,10 +74,11 @@ public class Main {
 
         // Diameter and longest path of the metro :
 
-        DijkstraDiameter dijkstraDiameter = new DijkstraDiameter(metro);
+        DijkstraDiameter dijkstraDiameter = new DijkstraDiameter(graph);
         dijkstraDiameter.computeGraphProperties();
 
         PathUtils.printPath(dijkstraDiameter.getLongestShortestPath(), dijkstraDiameter.getLongestShortestPathLength());
+
     }
 
     public static void testGeocalcDistance() {

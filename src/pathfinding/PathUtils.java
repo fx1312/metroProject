@@ -6,8 +6,8 @@ import graph.EdgeType;
 import java.util.List;
 
 public class PathUtils {
-    public static void printPath(List<Edge> path, int pathLength) {
-        System.out.format("Longueur du trajet : %s mètres", pathLength);
+    public static void printPath(List<Edge> path, int pathLength, String unit) {
+        System.out.format("Longueur du trajet : %s %s", pathLength, unit);
         System.out.println(); // TODO system.lineSeparator
 
         for (Edge edge: path) {
@@ -27,4 +27,8 @@ public class PathUtils {
             System.out.println();
         }
     }
-}
+
+    public static void printPath(List<Edge> path, int pathLength) {
+        printPath(path, pathLength, "mètre(s)");
+    }
+    }

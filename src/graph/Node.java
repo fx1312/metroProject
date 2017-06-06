@@ -2,6 +2,7 @@ package graph;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Node {
     private String name;
@@ -47,7 +48,12 @@ public class Node {
         this.lines = lines;
     }
 
+    public void addNeighbor(Node neighbor) {
+        neighbors.add(neighbor);
+    }
+
     public List<Node> getNeighbors() {
+        List<Node> nodes = edges.stream().map(Edge::getNodeTo).collect(Collectors.toList());
         return neighbors;
     }
 
@@ -123,6 +129,8 @@ public class Node {
                 "name='" + name + '\'' +
                 ", lng=" + lng +
                 ", lat=" + lat +
+                ", lines=" + lines +
+                ", marked=" + marked +
                 '}';
     }
 
