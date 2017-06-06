@@ -3,18 +3,38 @@ package graphproperties;
 import graph.Edge;
 import graph.Graph;
 import graph.Node;
+import pathfinding.BFSPathFinder;
+import pathfinding.DijkstraPathFinder;
 import pathfinding.PathFinder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+public class GraphProperties {
+    private PathFinder pathFinder;
+    private Graph graph;
 
-// TODO not abstract (the only difference between implementations is the PathFinder that gets passed ==> construct with a pathfinder isntance as constructor parameter, and there is no need for this class to be abstract)
-public abstract class GraphProperties {
+    private Integer radius;
+    private Integer diameter;
+
+    private List<Edge> diameterPath;
+    private int diameterPathLength;
+
+
+    public GraphProperties(PathFindingStrategy pathFindingStrategy, Graph graph) {
+        this.graph = graph;
+
+        switch (pathFindingStrategy) {
+            case BFS:
+                pathFinder = new BFSPathFinder(graph);
+            case DIJKSTRA:
+                pathFinder = new DijkstraPathFinder(graph);
+        }
+    }
+
     public void computeRadiusAndDiameter() {
-        PathFinder pathFinder = getPathFinder();
-        Map<Integer, Node> nodes = getGraph().getNodes();
+        Map<Integer, Node> nodes = graph.getNodes();
 
         for (Map.Entry<Integer, Node> currentEntry : nodes.entrySet()) {
             Node currentNode = currentEntry.getValue();
@@ -40,33 +60,31 @@ public abstract class GraphProperties {
                 // TODO what if eccentricity == Integer.MAX_VALUE ?
 
                 // Handle computation of the longest path and of the radius and diameter :
-                if (getDiameter() == null || eccentricity > getDiameter()) {
-                    setDiameter(eccentricity);
+                if (diameter == null || eccentricity > diameter) {
+                    diameter = eccentricity;
 
                     // If we have found a new longest path (aka a new value for the diameter of the graph),
                     // we compute the actual path so that we can brag about it elsewhere :
                     pathFinder.computeShortestPathWithoutTraversing(currentNode, maxEntry.getValue());
 
-                    setLongestShortestPath(pathFinder.getPath());
-                    setLongestShortestPathLength(pathFinder.getPathLength());
+                    diameterPath = pathFinder.getPath();
+                    diameterPathLength = pathFinder.getPathLength();
                 }
-                if (getRadius() == null || eccentricity < getRadius()) {
-                    setRadius(eccentricity);
+                if (radius == null || eccentricity < radius) {
+                    radius = eccentricity;
                 }
             }
         }
     }
 
     public void resetEdgeBetweenness() {
-        List<Edge> edges = getGraph().getEdges();
+        List<Edge> edges = graph.getEdges();
         edges.forEach(edge -> edge.setBetweenness(0));
     }
 
     public void computeEdgeBetweenness() {
         resetEdgeBetweenness();
-
-        PathFinder pathFinder = getPathFinder();
-        Map<Integer, Node> nodes = getGraph().getNodes();
+        Map<Integer, Node> nodes = graph.getNodes();
 
         for (Map.Entry<Integer, Node> currentEntry : nodes.entrySet()) {
             Node currentNode = currentEntry.getValue();
@@ -98,10 +116,9 @@ public abstract class GraphProperties {
     public List<List<Node>> connectedComponents() {
         List<List<Node>> connectedComponents = new ArrayList<>();
 
-        PathFinder pathFinder = getPathFinder();
         pathFinder.resetNodesProperties();
 
-        for (Map.Entry<Integer, Node> nodeEntry: getGraph().getNodes().entrySet()) {
+        for (Map.Entry<Integer, Node> nodeEntry: graph.getNodes().entrySet()) {
             Node node = nodeEntry.getValue();
             if (!node.isMarked()) {
                 pathFinder.clearTraversedNodes();
@@ -115,23 +132,11 @@ public abstract class GraphProperties {
         return connectedComponents;
     }
 
-    protected abstract PathFinder getPathFinder();
+    public List<Edge> getDiameterPath() {
+        return diameterPath;
+    }
 
-    protected abstract Graph getGraph();
-
-    protected abstract Integer getDiameter();
-
-    protected abstract void setDiameter(int diameter);
-
-    protected abstract Integer getRadius();
-
-    protected abstract void setRadius(int radius);
-
-    protected abstract List<Edge> getLongestShortestPath();
-
-    protected abstract void setLongestShortestPath(List<Edge> longestShortestPath);
-
-    protected abstract void setLongestShortestPathLength(int length);
-
-    protected abstract Integer getLongestShortestPathLength();
+    public int getDiameterPathLength() {
+        return diameterPathLength;
+    }
 }

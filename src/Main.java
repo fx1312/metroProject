@@ -1,12 +1,14 @@
 import graph.*;
-import graphproperties.BFSGraphProperties;
-import graphproperties.DijkstraGraphProperties;
+import graphproperties.GraphProperties;
+import graphproperties.PathFindingStrategy;
 import pathfinding.BFSPathFinder;
 import pathfinding.DijkstraPathFinder;
 import pathfinding.PathUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -25,49 +27,6 @@ public class Main {
         bfsDemo(metro);
         dijkstraDemo(metro);
         edgeBetweennessDemo(metro);
-
-//        simpleGraphDemo();
-    }
-
-    private static void simpleGraphDemo() {
-        Graph graph = new Graph();
-        List<String> lines = new ArrayList<>(Arrays.asList("1", "2", "3"));
-        graph.getNodes().put(1, new Node("A", lines, 123.45, 12.45));
-        graph.getNodes().put(2, new Node("B", lines, 123.45, 12.45));
-        graph.getNodes().put(3, new Node("C", lines, 123.45, 12.45));
-        graph.getNodes().put(4, new Node("D", lines, 123.45, 12.45));
-        BFSGraphProperties bfsGraphProperties = new BFSGraphProperties(graph);
-        System.out.println(bfsGraphProperties.connectedComponents());
-        graph.addUndirectedEdgeBetweenNodes(1,2,"qsdf", EdgeType.METRO_LINE);
-        graph.addUndirectedEdgeBetweenNodes(3,4,"qsdf", EdgeType.METRO_LINE);
-        System.out.println(bfsGraphProperties.connectedComponents());
-        graph.addUndirectedEdgeBetweenNodes(1,3,"qsdf", EdgeType.METRO_LINE);
-        System.out.println(bfsGraphProperties.connectedComponents());
-        bfsGraphProperties.computeEdgeBetweenness();
-        for (Edge e: graph.getEdges()) {
-            System.out.println(e.getNodeFrom().getName() + "/" + e.getNodeTo().getName() + "bet : " + e.getBetweenness());
-        }
-
-        System.out.println(graph.getEdges().size());
-
-
-        // Find maximal betweenness :
-        int max = -1;
-        for (Edge e : graph.getEdges()) {
-            if (e.getBetweenness() > max) {
-                max = e.getBetweenness();
-            }
-        }
-        // Find all edges we have to remove :
-        List<Edge> edgesToRemove = new ArrayList<>();
-        for (Edge e: graph.getEdges()) {
-            if (e.getBetweenness() == max) {
-                edgesToRemove.add(e);
-            }
-        }
-        System.out.println("Removing " + edgesToRemove);
-        graph.getEdges().removeAll(edgesToRemove);
-        System.out.println(graph.getEdges().size());
     }
 
     private static void bfsDemo(Graph metro) {
@@ -86,13 +45,13 @@ public class Main {
         bfsPathFinder.computeShortestPath("La Courneuve-8-Mai-1945", "Stalingrad");
         PathUtils.printPath(bfsPathFinder.getPath(), bfsPathFinder.getPathLength(), "stations");
 
-        BFSGraphProperties bfsDiameter = new BFSGraphProperties(metro);
+        GraphProperties bfsGraphProperties = new GraphProperties(PathFindingStrategy.BFS, metro);
 
-        bfsDiameter.computeRadiusAndDiameter();
+        bfsGraphProperties.computeRadiusAndDiameter();
 
         PathUtils.printPath(
-                bfsDiameter.getLongestShortestPath(),
-                bfsDiameter.getLongestShortestPathLength(),
+                bfsGraphProperties.getDiameterPath(),
+                bfsGraphProperties.getDiameterPathLength(),
                 "stations"
         );
     }
@@ -119,12 +78,11 @@ public class Main {
         dijkstraPathFinder.computeShortestPath("Gare de l'Est (Verdun)", "La Chapelle");
         PathUtils.printPath(dijkstraPathFinder.getPath(), dijkstraPathFinder.getPathLength());
 
-        // GraphProperties and longest path of the metro :
-
-        DijkstraGraphProperties dijkstraDiameter = new DijkstraGraphProperties(graph);
+        // graph properties and longest path of the metro :
+        GraphProperties dijkstraDiameter = new GraphProperties(PathFindingStrategy.DIJKSTRA, graph);
         dijkstraDiameter.computeRadiusAndDiameter();
 
-        PathUtils.printPath(dijkstraDiameter.getLongestShortestPath(), dijkstraDiameter.getLongestShortestPathLength());
+        PathUtils.printPath(dijkstraDiameter.getDiameterPath(), dijkstraDiameter.getDiameterPathLength());
     }
 
     private static void edgeBetweennessDemo(Graph graph) {
@@ -132,7 +90,7 @@ public class Main {
         System.out.println();
         System.out.println();
 
-        BFSGraphProperties bfsGraphProperties = new BFSGraphProperties(graph);
+        GraphProperties bfsGraphProperties = new GraphProperties(PathFindingStrategy.BFS, graph);
         bfsGraphProperties.computeEdgeBetweenness();
 
         int targetCC = 30; // Target number of connected components in the graph
@@ -180,6 +138,9 @@ public class Main {
                 System.out.println("Removing line " + e.getLine() + " from " + e.getNodeFrom().getName() + " to " + e.getNodeTo().getName() + "(edge betweenness : " + e.getBetweenness() + ")");
                 graph.removeEdge(e);
             }
+
+            // Recompute edge betweenness, taking into account the removal of some Edges :
+            bfsGraphProperties.computeEdgeBetweenness();
         }
 
         System.out.println("*** Girvan–Newman algorithm iterations : " + iterations);
