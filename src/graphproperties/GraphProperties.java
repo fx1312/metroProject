@@ -28,8 +28,12 @@ public class GraphProperties {
         switch (pathFindingStrategy) {
             case BFS:
                 pathFinder = new BFSPathFinder(graph);
+                break;
             case DIJKSTRA:
                 pathFinder = new DijkstraPathFinder(graph);
+                break;
+            default:
+                // TODO
         }
     }
 
@@ -96,11 +100,9 @@ public class GraphProperties {
             for (Map.Entry<Integer, Node> entry : nodes.entrySet()) {
                 Node node = entry.getValue();
 
-
                 // pathFinder.hasPathTo(node) : prevent counting non-existent paths
                 // node != currentNode : prevent counting the path from currentNode to currentNode
                 if (pathFinder.hasPathTo(node) && node != currentNode) {
-
                     pathFinder.computeShortestPathWithoutTraversing(currentNode, node);
 
                     List<Edge> path = pathFinder.getPath();

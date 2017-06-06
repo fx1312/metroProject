@@ -93,11 +93,11 @@ public class Main {
         GraphProperties bfsGraphProperties = new GraphProperties(PathFindingStrategy.BFS, graph);
         bfsGraphProperties.computeEdgeBetweenness();
 
-        int targetCC = 30; // Target number of connected components in the graph
-
+        int targetCC = 10; // Target number of connected components in the graph
         int iterations = 0;
 
         while (bfsGraphProperties.connectedComponents().size() < targetCC) {
+            int currentCC = bfsGraphProperties.connectedComponents().size();
             iterations ++;
 
             if (graph.getEdges().size() == 0) {
@@ -135,14 +135,25 @@ public class Main {
 
 
             for (Edge e: edgesToRemove) {
-                System.out.println("Removing line " + e.getLine() + " from " + e.getNodeFrom().getName() + " to " + e.getNodeTo().getName() + "(edge betweenness : " + e.getBetweenness() + ")");
+//                System.out.println("Removing line " + e.getLine() + " from " + e.getNodeFrom().getName() + " to " + e.getNodeTo().getName() + "(edge betweenness : " + e.getBetweenness() + ")");
                 graph.removeEdge(e);
             }
 
             // Recompute edge betweenness, taking into account the removal of some Edges :
             bfsGraphProperties.computeEdgeBetweenness();
+
+            if (bfsGraphProperties.connectedComponents().size() != currentCC) {
+                System.out.println();
+                System.out.println("*** Girvan–Newman algorithm iterations : " + iterations);
+                System.out.println("*** Girvan–Newman algorithm clusters : " + bfsGraphProperties.connectedComponents().size());
+                for (List<Node> nodes : bfsGraphProperties.connectedComponents()) {
+                    System.out.println(String.join(", ", nodes.stream().map(n -> n.getName()).collect(Collectors.toList())));
+                    System.out.println(nodes.size());
+                }
+            }
         }
 
+        System.out.println();
         System.out.println("*** Girvan–Newman algorithm iterations : " + iterations);
         System.out.println("*** Girvan–Newman algorithm clusters : " + bfsGraphProperties.connectedComponents().size());
         for (List<Node> nodes : bfsGraphProperties.connectedComponents()) {

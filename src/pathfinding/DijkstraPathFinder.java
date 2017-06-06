@@ -44,8 +44,12 @@ public class DijkstraPathFinder extends PathFinder {
             for (Edge edge: currentNode.getEdges()) {
                 Node neighbor = edge.getNodeTo();
 
-                if (currentNode.getDistanceFromSource() + currentNode.getWeightForNeigbhor(neighbor) < neighbor.getDistanceFromSource()) {
-                    neighbor.setDistanceFromSource(currentNode.getDistanceFromSource() + currentNode.getWeightForNeigbhor(neighbor));
+                int neighborDistance = currentNode.getDistanceFromSource() + currentNode.getWeightForNeigbhor(neighbor);
+
+                // neighbordistance > 0 : prevent int overflow going to negative
+                // TODO something bad happens here :'(
+                if (neighborDistance > 0 && neighborDistance < neighbor.getDistanceFromSource()) {
+                    neighbor.setDistanceFromSource(neighborDistance);
                     neighbor.setPredecessor(currentNode);
                 }
             }

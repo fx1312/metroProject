@@ -72,6 +72,9 @@ public class Node {
     }
 
     public void setDistanceFromSource(int distanceFromSource) {
+        if (distanceFromSource < 0) {
+            System.out.println("### grepme" + distanceFromSource);
+        }
         this.distanceFromSource = distanceFromSource;
     }
 
