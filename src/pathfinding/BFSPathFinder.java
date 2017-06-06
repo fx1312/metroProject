@@ -48,9 +48,10 @@ public class BFSPathFinder extends PathFinder {
         while (!isQueueEmpty()) {
             Node currentNode = popQueue();
 
-            List<Node> neighbors = currentNode.getNeighbors();
+            List<Edge> edges = currentNode.getEdges();
 
-            for (Node neighbor: neighbors) {
+            for (Edge edge: edges) {
+                Node neighbor = edge.getNodeTo();
                 if (!neighbor.isMarked()) {
                     // We don't use the weight of the edge, since we are working
                     // with an unweighted graph, the

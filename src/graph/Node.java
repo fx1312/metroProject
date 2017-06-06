@@ -8,7 +8,6 @@ public class Node {
     private String name;
     private List<Edge> edges = new ArrayList<>();
     private List<String> lines = new ArrayList<>();
-    private List<Node> neighbors = new ArrayList<>();
     private double lng;
     private double lat;
 
@@ -46,19 +45,6 @@ public class Node {
 
     public void setLines(List<String> lines) {
         this.lines = lines;
-    }
-
-    public void addNeighbor(Node neighbor) {
-        neighbors.add(neighbor);
-    }
-
-    public List<Node> getNeighbors() {
-        List<Node> nodes = edges.stream().map(Edge::getNodeTo).collect(Collectors.toList());
-        return neighbors;
-    }
-
-    public void setNeighbors(List<Node> neighbors) {
-        this.neighbors = neighbors;
     }
 
     public double getLng() {

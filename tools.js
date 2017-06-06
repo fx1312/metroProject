@@ -57,4 +57,14 @@ function describeRoutes() {
   });
 }
 
-describeCorresp();
+function numberOfEdges() {
+  var edges = 0;
+  metro.routes.forEach(function(route) {
+    if (route.type === "metro")
+      edges += route.arrets.length - 1;
+  });
+
+  console.log(edges);
+}
+
+numberOfEdges();

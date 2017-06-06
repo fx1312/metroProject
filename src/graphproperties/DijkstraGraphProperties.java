@@ -2,13 +2,13 @@ package graphproperties;
 
 import graph.Edge;
 import graph.Graph;
-import pathfinding.BFSPathFinder;
+import pathfinding.DijkstraPathfinder;
 import pathfinding.PathFinder;
 
 import java.util.List;
 
-public class BFSDiameter extends Diameter {
-    private BFSPathFinder bfsPathFinder;
+public class DijkstraGraphProperties extends GraphProperties {
+    private DijkstraPathfinder dijkstraPathfinder;
     private Graph graph;
 
     private Integer radius;
@@ -17,14 +17,14 @@ public class BFSDiameter extends Diameter {
     private List<Edge> longestShortestPath;
     private int longestShortestPathLength;
 
-    public BFSDiameter(Graph graph) {
+    public DijkstraGraphProperties(Graph graph) {
         this.graph = graph;
-        bfsPathFinder = new BFSPathFinder(graph);
+        dijkstraPathfinder = new DijkstraPathfinder(graph);
     }
 
     @Override
     protected PathFinder getPathFinder() {
-        return bfsPathFinder;
+        return dijkstraPathfinder;
     }
 
     @Override
@@ -52,12 +52,6 @@ public class BFSDiameter extends Diameter {
         this.radius = radius;
     }
 
-    // TODO throw if this is called before calling computeGraphProperties :
-    @Override
-    public List<Edge> getLongestShortestPath() {
-        return longestShortestPath;
-    }
-
     @Override
     protected void setLongestShortestPath(List<Edge> longestShortestPath) {
         this.longestShortestPath = longestShortestPath;
@@ -68,7 +62,13 @@ public class BFSDiameter extends Diameter {
         this.longestShortestPathLength = length;
     }
 
-    // TODO throw if this is called before calling computeGraphProperties :
+    // TODO throw if this is called before calling computeRadiusAndDiameter :
+    @Override
+    public List<Edge> getLongestShortestPath() {
+        return longestShortestPath;
+    }
+
+    // TODO throw if this is called before calling computeRadiusAndDiameter :
     @Override
     public Integer getLongestShortestPathLength() {
         return longestShortestPathLength;

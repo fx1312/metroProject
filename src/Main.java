@@ -1,12 +1,8 @@
-import com.peertopark.java.geocalc.Coordinate;
-import com.peertopark.java.geocalc.DegreeCoordinate;
-import com.peertopark.java.geocalc.EarthCalc;
-import com.peertopark.java.geocalc.Point;
-import com.sun.javafx.runtime.SystemProperties;
+import graph.Edge;
 import graph.Graph;
 import graph.JSONGraphFactory;
-import graphproperties.BFSDiameter;
-import graphproperties.DijkstraDiameter;
+import graphproperties.BFSGraphProperties;
+import graphproperties.DijkstraGraphProperties;
 import pathfinding.BFSPathFinder;
 import pathfinding.DijkstraPathfinder;
 import pathfinding.PathUtils;
@@ -24,25 +20,32 @@ public class Main {
             return;
         }
 
-        metro.printGraph();
+//        metro.printGraph();
 
         bfsDemo(metro);
-        System.out.println("");
-
-        dijkstraDemo(metro);
-
-
+//        dijkstraDemo(metro);
+        edgeBetweennessDemo(metro);
     }
 
     private static void bfsDemo(Graph metro) {
+        System.out.println();
+        System.out.println();
+        System.out.println();
+
         BFSPathFinder bfsPathFinder = new BFSPathFinder(metro);
+
+        bfsPathFinder.computeShortestPath("Duroc", "Saint-Francois-Xavier");
+        PathUtils.printPath(bfsPathFinder.getPath(), bfsPathFinder.getPathLength(), "stations");
+
+        bfsPathFinder.computeShortestPath("Porte de Vanves", "Plaisance");
+        PathUtils.printPath(bfsPathFinder.getPath(), bfsPathFinder.getPathLength(), "stations");
+
         bfsPathFinder.computeShortestPath("La Courneuve-8-Mai-1945", "Stalingrad");
+        PathUtils.printPath(bfsPathFinder.getPath(), bfsPathFinder.getPathLength(), "stations");
 
-        PathUtils.printPath(bfsPathFinder.getPath(), bfsPathFinder.getPathLength());
+        BFSGraphProperties bfsDiameter = new BFSGraphProperties(metro);
 
-        BFSDiameter bfsDiameter = new BFSDiameter(metro);
-
-        bfsDiameter.computeGraphProperties();
+        bfsDiameter.computeRadiusAndDiameter();
 
         PathUtils.printPath(
                 bfsDiameter.getLongestShortestPath(),
@@ -54,6 +57,7 @@ public class Main {
     private static void dijkstraDemo(Graph graph) {
         DijkstraPathfinder dijkstraPathfinder = new DijkstraPathfinder(graph);
 
+        System.out.println();
         System.out.println();
         System.out.println();
 
@@ -72,28 +76,32 @@ public class Main {
         dijkstraPathfinder.computeShortestPath("Gare de l'Est (Verdun)", "La Chapelle");
         PathUtils.printPath(dijkstraPathfinder.getPath(), dijkstraPathfinder.getPathLength());
 
-        // Diameter and longest path of the metro :
+        // GraphProperties and longest path of the metro :
 
-        DijkstraDiameter dijkstraDiameter = new DijkstraDiameter(graph);
-        dijkstraDiameter.computeGraphProperties();
+        DijkstraGraphProperties dijkstraDiameter = new DijkstraGraphProperties(graph);
+        dijkstraDiameter.computeRadiusAndDiameter();
 
         PathUtils.printPath(dijkstraDiameter.getLongestShortestPath(), dijkstraDiameter.getLongestShortestPathLength());
-
     }
 
-    public static void testGeocalcDistance() {
-        // Javel, Paris
-        Coordinate lat = new DegreeCoordinate(48.8461034637876);
-        Coordinate lng = new DegreeCoordinate(2.27845497841475);
-        Point javel = new Point(lat, lng);
+    private static void edgeBetweennessDemo(Graph graph) {
+        BFSGraphProperties bfsGraphProperties = new BFSGraphProperties(graph);
+        bfsGraphProperties.computeEdgeBetweenness();
 
-        // Charles-Michel, Paris
-        Coordinate lat1 = new DegreeCoordinate(48.846336);
-        Coordinate lng1 = new DegreeCoordinate(2.2863324);
-        Point charles = new Point(lat1, lng1);
+        graph.getEdges().sort((edge1, edge2) -> {
+            String e1b = edge1.getNodeFrom().getName();
+            String e2b = edge2.getNodeFrom().getName();
+            return e2b.compareTo(e1b);
+        });
 
-        int distance = (int) EarthCalc.getHarvesineDistance(javel, charles); // in meters
-
-        System.out.println("Distance: " + distance);
+        for(Edge e: graph.getEdges()) {
+            System.out.println(e.getNodeFrom().getName()
+                    + "/"
+                    + e.getNodeTo().getName()
+                    + " (ligne "
+                    + e.getLine()
+                    + ") "
+                    + e.getBetweenness());
+        }
     }
 }

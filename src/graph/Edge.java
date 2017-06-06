@@ -7,6 +7,8 @@ public class Edge {
     private String line; //Ligne à laquelle appartient cette liaison.
     private EdgeType type;
 
+    private int betweenness = 0;
+
     Edge(Node nodeFrom, Node nodeTo, String line, EdgeType type) {
         this.nodeTo = nodeTo;
         this.nodeFrom = nodeFrom;
@@ -63,5 +65,13 @@ public class Edge {
 
     public void setType(EdgeType type) {
         this.type = type;
+    }
+
+    public int getBetweenness() {
+        return betweenness;
+    }
+
+    public void setBetweenness(int betweenness) {
+        this.betweenness = betweenness;
     }
 }

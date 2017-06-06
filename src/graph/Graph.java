@@ -5,6 +5,8 @@ import java.util.*;
 public class Graph {
     private Map<Integer, Node> nodes = new HashMap<>();
 
+    private List<Edge> edges = new ArrayList<>();
+
     public Map<Integer, Node> getNodes() {
         return nodes;
     }
@@ -36,5 +38,13 @@ public class Graph {
             }
         }
         return null;
+    }
+
+    public List<Edge> getEdges() {
+        return edges;
+    }
+
+    public void setEdges(List<Edge> edges) {
+        this.edges = edges;
     }
 }

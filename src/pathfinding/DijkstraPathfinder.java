@@ -42,12 +42,15 @@ public class DijkstraPathfinder extends PathFinder {
         currentNode.setDistanceFromSource(0);
 
         while (currentNode != null) {
-            for (Node neighbor : currentNode.getNeighbors()) {
+            for (Edge edge: currentNode.getEdges()) {
+                Node neighbor = edge.getNodeTo();
+
                 if (currentNode.getDistanceFromSource() + currentNode.getWeightForNeigbhor(neighbor) < neighbor.getDistanceFromSource()) {
                     neighbor.setDistanceFromSource(currentNode.getDistanceFromSource() + currentNode.getWeightForNeigbhor(neighbor));
                     neighbor.setPredecessor(currentNode);
                 }
             }
+
             currentNode.setMarked(true);
 
             // Find the new current node

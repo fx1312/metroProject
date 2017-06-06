@@ -8,8 +8,10 @@ import pathfinding.PathFinder;
 import java.util.List;
 import java.util.Map;
 
-public abstract class Diameter {
-    public void computeGraphProperties() {
+
+// TODO not abstract (the only difference between implementations is the PathFinder that gets passed ==> construct with a pathfinder isntance as constructor parameter, and there is no need for this class to be abstract)
+public abstract class GraphProperties {
+    public void computeRadiusAndDiameter() {
         PathFinder pathFinder = getPathFinder();
         Map<Integer, Node> nodes = getGraph().getNodes();
 
@@ -32,15 +34,7 @@ public abstract class Diameter {
                 int eccentricity = maxEntry.getValue().getDistanceFromSource();
                 currentNode.setEccentricity(eccentricity);
 
-                // TODO throw away this, but find a thing to do when we encouter this case (throw an exception probably)
-                if (eccentricity == Integer.MAX_VALUE) {
-                    System.out.println("**** problème ****");
-                    System.out.println(currentNode.getName());
-                    System.out.println(currentNode.getLines());
-                    System.out.println(maxEntry.getValue().getName());
-                    System.out.println(maxEntry.getValue().getLines());
-                    continue;
-                }
+                // TODO what if eccentricity == Integer.MAX_VALUE ?
 
                 // Handle computation of the longest path and of the radius and diameter :
                 if (getDiameter() == null || eccentricity > getDiameter()) {
@@ -48,13 +42,49 @@ public abstract class Diameter {
 
                     // If we have found a new longest path (aka a new value for the diameter of the graph),
                     // we compute the actual path so that we can brag about it elsewhere :
-                    pathFinder.computeShortestPath(currentNode, maxEntry.getValue());
+                    pathFinder.computeShortestPathWithoutRunningTraversal(currentNode, maxEntry.getValue());
 
                     setLongestShortestPath(pathFinder.getPath());
                     setLongestShortestPathLength(pathFinder.getPathLength());
                 }
                 if (getRadius() == null || eccentricity < getRadius()) {
                     setRadius(eccentricity);
+                }
+            }
+        }
+    }
+
+    public void resetEdgeBetweenness() {
+        List<Edge> edges = getGraph().getEdges();
+        edges.forEach(edge -> edge.setBetweenness(0));
+    }
+
+    public void computeEdgeBetweenness() {
+        resetEdgeBetweenness();
+
+        PathFinder pathFinder = getPathFinder();
+        Map<Integer, Node> nodes = getGraph().getNodes();
+
+        for (Map.Entry<Integer, Node> currentEntry : nodes.entrySet()) {
+            Node currentNode = currentEntry.getValue();
+            pathFinder.runTraversal(currentNode);
+
+            // Compute the edges betweenness :
+            for (Map.Entry<Integer, Node> entry : nodes.entrySet()) {
+                Node node = entry.getValue();
+
+
+                // pathFinder.hasPathTo(node) : prevent counting non-existent paths
+                // node != currentNode : prevent counting the path from currentNode to currentNode
+                if (pathFinder.hasPathTo(node) && node != currentNode) {
+
+                    pathFinder.computeShortestPathWithoutRunningTraversal(currentNode, node);
+
+                    List<Edge> path = pathFinder.getPath();
+
+                    for (Edge edge : path) {
+                        edge.setBetweenness(edge.getBetweenness() + 1);
+                    }
                 }
             }
         }

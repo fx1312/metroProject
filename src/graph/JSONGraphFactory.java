@@ -53,7 +53,7 @@ public class JSONGraphFactory {
     }
 
     private static void addFootConnectionsToStations(Graph graph, JSONArray correspondances) {
-        // Iterate over the list of
+        // Iterate over the list of foot connections :
         for (int i = 0; i < correspondances.length(); i++) {
             JSONArray correspondance = correspondances.getJSONArray(i);
 
@@ -68,10 +68,11 @@ public class JSONGraphFactory {
                     int nodeIndex = Integer.parseInt(correspondanceLine);
                     Node node = nodes.get(nodeIndex);
                     if (node != null) nodesToLink.add(nodeIndex);
-                } catch (NumberFormatException e) {
+                } catch (Exception e) {
                     // No-op ! This station was not recognised, we go on to the next one
                 }
             }
+
 
             if (nodesToLink.size() == 2) {
                 addUndirectedEdgeBetweenNodes(graph, nodesToLink.get(0), nodesToLink.get(1), "Correspondance à pied", EdgeType.CONNECTION);
@@ -109,10 +110,31 @@ public class JSONGraphFactory {
                     int nodeFromIndex = Integer.parseInt(stops.getString(j));
                     int nodeToIndex = Integer.parseInt(stops.getString(j + 1));
 
-                    addEdgeBetweenNodes(graph, nodeFromIndex, nodeToIndex, lineName, EdgeType.METRO_LINE);
+                    if (!edgeExists(graph, nodeFromIndex, nodeToIndex, lineName, EdgeType.METRO_LINE)) {
+                        addEdgeBetweenNodes(graph, nodeFromIndex, nodeToIndex, lineName, EdgeType.METRO_LINE);
+                    }
                 }
             }
         }
+    }
+
+    private static boolean edgeExists(Graph graph, int nodeFromIndex, int nodeToIndex, String lineName, EdgeType edgeType) {
+        Node edgeNodeTo = graph.getNodes().get(nodeToIndex);
+        Node edgeNodeFrom = graph.getNodes().get(nodeFromIndex);
+
+        for (Edge e: graph.getEdges()) {
+            Node nodeTo = e.getNodeTo();
+            Node nodeFrom = e.getNodeFrom();
+
+            if (nodeTo == edgeNodeTo
+                    && nodeFrom == edgeNodeFrom
+                    && lineName.equals(e.getLine())
+                    && edgeType == e.getType()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static void addStationsToGraph(Graph graph, JSONObject stations) {
@@ -161,9 +183,6 @@ public class JSONGraphFactory {
         List<Edge> edges = node.getEdges();
 
         edges.forEach(edge ->  {
-            // Computing Node's neighbors :
-            node.addNeighbor(edge.getNodeTo());
-
             // Computing edges weights using geocalc to calculate the distance between two (lat, lng) pairs :
             Coordinate latStation1 = new DegreeCoordinate(edge.getNodeFrom().getLat());
             Coordinate lngStation1 = new DegreeCoordinate(edge.getNodeFrom().getLng());
@@ -193,6 +212,7 @@ public class JSONGraphFactory {
 
         Edge edge = new Edge(node1, node2, line, type);
 
+        graph.getEdges().add(edge);
         node1.addEdge(edge);
     }
 }

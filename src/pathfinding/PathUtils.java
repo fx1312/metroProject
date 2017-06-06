@@ -31,4 +31,4 @@ public class PathUtils {
     public static void printPath(List<Edge> path, int pathLength) {
         printPath(path, pathLength, "mètre(s)");
     }
-    }
+}

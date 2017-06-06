@@ -22,12 +22,14 @@ public abstract class PathFinder {
 
         runTraversal(departure);
 
+        computeShortestPathWithoutRunningTraversal(departure, arrival);
+    }
+
+    public void computeShortestPathWithoutRunningTraversal(Node departure, Node arrival) {
         int pathLength = arrival.getDistanceFromSource();
 
         if (pathLength == Integer.MAX_VALUE) {
-            System.out.println(departure);
-            System.out.println(arrival);
-            throw new PathFindingException("No path exists between source and target node !");
+            throw new PathFindingException("No path exists between source (" + departure.getName() + ") and target (" + arrival.getName() + ") node !");
         }
 
         // Build the successive path steps, going backwards
@@ -51,8 +53,13 @@ public abstract class PathFinder {
         }
 
         Collections.reverse(pathSteps);
+
         this.setPath(pathSteps);
         this.setPathLength(pathLength);
+    }
+
+    public boolean hasPathTo(Node node) {
+        return node.getDistanceFromSource() < Integer.MAX_VALUE;
     }
 
     abstract public List<Edge> getPath();
