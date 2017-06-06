@@ -32,15 +32,3 @@ Repo qui rassemble les classes et les données nécéssaire au projet
 Le projet est composé d'un objet graph.Graph dont le constructeur s'occupe de remplir une Map des Nodes (stations de métro) qui le constituent.
 
 Chaque graph.Node de cette Map possède une liste de graph.Edge, qui est remplis par le constructeur de graph.Graph. Les Nodes possèdent aussi toute sorte d'autre propriétées qui sont utiles par la suite.
-
-
-## Bibliographie
-
-Tu fais une recherche et tu tombes sur un truc intéressant ? Balance-le ici !
-
-* https://upload.wikimedia.org/wikipedia/commons/8/8e/Paris_Metro_map_complete.svg
-
-## Flaws
-
-* On part du principe que les segments de lignes entre les stations sont toujours des droites (or ce n'est pas forcément le cas)
-

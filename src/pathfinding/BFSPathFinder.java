@@ -60,7 +60,6 @@ public class BFSPathFinder extends PathFinder {
 
                     enqueue(neighbor);
                     neighbor.setMarked(true);
-//                    System.out.println(traversedNodes.contains(neighbor));
                     traversedNodes.add(neighbor);
                 }
             }

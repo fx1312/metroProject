@@ -3,17 +3,20 @@ package graphproperties;
 import graph.Edge;
 import graph.Graph;
 import graph.Node;
-import pathfinding.BFSPathFinder;
-import pathfinding.DijkstraPathFinder;
 import pathfinding.PathFinder;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class GraphProperties {
     private PathFinder pathFinder;
     private Graph graph;
+
+    public Integer getRadius() {
+        return radius;
+    }
 
     private Integer radius;
     private Integer diameter;
@@ -21,20 +24,9 @@ public class GraphProperties {
     private List<Edge> diameterPath;
     private int diameterPathLength;
 
-
-    public GraphProperties(PathFindingStrategy pathFindingStrategy, Graph graph) {
+    public GraphProperties(PathFinder pathFinder, Graph graph) {
         this.graph = graph;
-
-        switch (pathFindingStrategy) {
-            case BFS:
-                pathFinder = new BFSPathFinder(graph);
-                break;
-            case DIJKSTRA:
-                pathFinder = new DijkstraPathFinder(graph);
-                break;
-            default:
-                // TODO
-        }
+        this.pathFinder = pathFinder;
     }
 
     public void computeRadiusAndDiameter() {
@@ -140,5 +132,60 @@ public class GraphProperties {
 
     public int getDiameterPathLength() {
         return diameterPathLength;
+    }
+
+    public void girvanNewman() {
+        resetEdgeBetweenness();
+        computeEdgeBetweenness();
+
+        int targetCC = 10; // Target number of connected components in the graph
+        int iterations = 0;
+
+        while (connectedComponents().size() < targetCC) {
+            int currentCC = connectedComponents().size();
+            iterations ++;
+
+            if (graph.getEdges().size() == 0) {
+                System.out.println("No edges remaining. Stopping the algorithm");
+                return;
+            }
+
+            // Find maximal betweenness :
+            int max = -1;
+            for (Edge e : graph.getEdges()) {
+                if (e.getBetweenness() > max) {
+                    max = e.getBetweenness();
+                }
+            }
+
+            // Find all edges we have to remove :
+            // We have to prepare this list before actual removal, or else we get a ConcurrentModificationException
+            // (modifying a list while iterating over its elements)
+            List<Edge> edgesToRemove = new ArrayList<>();
+            for (Edge e: graph.getEdges()) {
+                if (e.getBetweenness() == max) {
+                    edgesToRemove.add(e);
+                }
+            }
+
+            System.out.println("Removing : " + String.join(", ", edgesToRemove.stream().map(e -> e.getNodeFrom().getName() + " / " + e.getNodeTo().getName()).collect(Collectors.toList())));
+            for (Edge e: edgesToRemove) {
+                graph.removeEdge(e);
+            }
+
+            // Recompute edge betweenness, taking into account the removal of some Edges :
+            computeEdgeBetweenness();
+
+            // If we have made a cluster appear by disconnecting it, describe it via a little console output :
+            if (connectedComponents().size() != currentCC) {
+                System.out.println();
+                System.out.println("Number of iterations : " + iterations);
+                System.out.println("Number of clusters : " + connectedComponents().size());
+                for (List<Node> nodes : connectedComponents()) {
+                    System.out.println("* " + String.join(", ", nodes.stream().map(n -> n.getName()).collect(Collectors.toList())));
+                    System.out.println(nodes.size());
+                }
+            }
+        }
     }
 }

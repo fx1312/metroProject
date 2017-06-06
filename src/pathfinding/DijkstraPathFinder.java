@@ -48,13 +48,14 @@ public class DijkstraPathFinder extends PathFinder {
 
                 // neighbordistance > 0 : prevent int overflow going to negative
                 // TODO something bad happens here :'(
-                if (neighborDistance > 0 && neighborDistance < neighbor.getDistanceFromSource()) {
+                if (neighborDistance < neighbor.getDistanceFromSource()) {
                     neighbor.setDistanceFromSource(neighborDistance);
                     neighbor.setPredecessor(currentNode);
                 }
             }
 
             currentNode.setMarked(true);
+            traversedNodes.add(currentNode);
 
             // Find the new current node
             currentNode = findUnmarkedNodeAtMinimalDistance();
@@ -78,13 +79,6 @@ public class DijkstraPathFinder extends PathFinder {
 
     @Override
     public List<Node> getTraversedNodes() {
-        for (Map.Entry<Integer, Node> nodeEntry : graph.getNodes().entrySet()) {
-            Node node = nodeEntry.getValue();
-
-            // Only keep nodes towards which we have found a path
-            if (node.getDistanceFromSource() < Integer.MAX_VALUE) traversedNodes.add(node);
-        }
-
         return traversedNodes;
     }
 
@@ -103,6 +97,9 @@ public class DijkstraPathFinder extends PathFinder {
 
             // Keep only unmarked nodes :
             if (currentNode.isMarked()) continue;
+
+            // Keep only nodes that have been set a non-infinite distance (aka neighbors of already visited nodes)
+            if (currentNode.getDistanceFromSource() == Integer.MAX_VALUE) continue;
 
             if (selectedNode == null || currentNode.getDistanceFromSource() < selectedNode.getDistanceFromSource()) {
                 selectedNode = currentNode;
