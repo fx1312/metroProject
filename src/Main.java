@@ -1,16 +1,11 @@
-import graph.Edge;
 import graph.Graph;
 import graph.JSONGraphFactory;
-import graph.Node;
 import graphproperties.GraphProperties;
 import pathfinding.BFSPathFinder;
 import pathfinding.DijkstraPathFinder;
 import pathfinding.PathUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class Main {
     public static void main(String[] args) {
@@ -40,6 +35,8 @@ public class Main {
         System.out.println();
         System.out.println();
 
+        System.out.println("*** RECHERCHE DE PLUS COURTS CHEMINS AVEC L'ALGORITHME BFS ***");
+
         BFSPathFinder bfsPathFinder = new BFSPathFinder(metro);
 
         bfsPathFinder.computeShortestPath("La Courneuve-8-Mai-1945", "Stalingrad");
@@ -52,7 +49,6 @@ public class Main {
         PathUtils.printPath(bfsPathFinder.getPath(), bfsPathFinder.getPathLength(), "interstations");
 
         GraphProperties bfsGraphProperties = new GraphProperties(new BFSPathFinder(metro), metro);
-
         bfsGraphProperties.computeRadiusAndDiameter();
 
         System.out.println();
@@ -72,6 +68,8 @@ public class Main {
         System.out.println();
         System.out.println();
         System.out.println();
+
+        System.out.println("*** RECHERCHE DE PLUS COURTS CHEMINS AVEC L'ALGORITHME DE DIJKSTRA ***");
 
         dijkstraPathFinder.computeShortestPath("La Courneuve-8-Mai-1945", "Stalingrad");
         PathUtils.printPath(dijkstraPathFinder.getPath(), dijkstraPathFinder.getPathLength());
